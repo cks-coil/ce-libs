@@ -11,8 +11,8 @@ public:
     void setCellSize(Eigen::Vector3i cellSize);
     void setAtomicPos(Eigen::Vector3d atomicPos);
     void setCrystalAxis(Eigen::Vector3d a, Eigen::Vector3d b, Eigen::Vector3d c);
-    int getNumAtoms(void);
-    int getNumUnitCellAtoms(void);
+    int getNumPositions(void);
+    int getNumUnitCellPositions(void);
     Eigen::Vector3i getCellSize(void);
     Eigen::Matrix3d getCrystalAxisMatrix(void);
     Eigen::Vector3d getFractionalPos(int index);
@@ -22,10 +22,11 @@ public:
     std::vector<Eigen::MatrixXi> getSymmetryMatrices(void);
 protected:
     void updateVariables(void);
-    virtual void calcFractionalPositions(void);
+    void calcFractionalPositions(void);
+    virtual void calcUnitCellFractionalPositions(void);
     virtual void calcSymmetryMatrices(void);
     void calcOrthogonalPositions(void);
-    void periodicBoundaryCondition(std::vector<Eigen::Vector3d> &positions);
+    void periodicBoundaryCondition(std::vector<Eigen::Vector3d> &positions, Eigen::Vector3i cellSize);
     std::vector<Eigen::Vector3d> glideReflection(std::vector<Eigen::Vector3d> positions, Eigen::Vector3d transVector, Eigen::Vector3d reflectionPos);
     Eigen::MatrixXi calcSymmetryMatrix(std::vector<Eigen::Vector3d> arr1, std::vector<Eigen::Vector3d> arr2);
     Eigen::Vector3i cellSize;
@@ -34,6 +35,7 @@ protected:
     std::vector<Eigen::Vector3d> fractionalPositions;
     std::vector<Eigen::Vector3d> orthogonalPositions;
     std::vector<Eigen::MatrixXi> symmetriMatrices;
+    std::vector<Eigen::Vector3d> unitCellFractionalPositions;
 };
 
 #endif

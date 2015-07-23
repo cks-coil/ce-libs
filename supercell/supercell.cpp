@@ -15,12 +15,14 @@ Supercell::Supercell(void){
     orthogonalPositions.push_back( Vector3d::Zero() );
     fractionalPositions.push_back( Vector3d::Zero() );
     symmetriMatrices.push_back( MatrixXi::Zero(1,1) );
+    unitCellFractionalPositions.push_back( Vector3d::Zero() );
 }
 
 Supercell::~Supercell(void){
     fractionalPositions.clear();
     orthogonalPositions.clear();
     symmetriMatrices.clear();
+    unitCellFractionalPositions.clear();
 }
 
 void Supercell::setCellSize(Vector3i cellSize){
@@ -39,11 +41,11 @@ void Supercell::setCrystalAxis(Vector3d a, Vector3d b, Vector3d c){
 }
 
 
-int Supercell::getNumAtoms(void){
+int Supercell::getNumPositions(void){
     return fractionalPositions.size();
 }
 
-int Supercell::getNumUnitCellAtoms(void){
+int Supercell::getNumUnitCellPositions(void){
     return fractionalPositions.size() / ( cellSize(0) * cellSize(1) * cellSize(2) );
 }
 
@@ -77,35 +79,50 @@ void Supercell::updateVariables(void){
     if( cellSize == Vector3i::Zero() ) return;
     if( crystalAxisMatrix == Matrix3d::Zero() ) return;
     
-    fractionalPositions.clear();
     calcFractionalPositions();
-    periodicBoundaryCondition( fractionalPositions );
-
-    orthogonalPositions.clear();
     calcOrthogonalPositions();
 
     symmetriMatrices.clear();
     calcSymmetryMatrices();
 }
 
-void Supercell::calcFractionalPositions(void){}
+void Supercell::calcFractionalPositions(void){
+    unitCellFractionalPositions.clear();
+    calcUnitCellFractionalPositions();
+    periodicBoundaryCondition(unitCellFractionalPositions, Vector3i::Ones());
+
+    fractionalPositions.clear();
+    for(int a=0; a<cellSize(0); a++){
+        for(int b=0; b<cellSize(1); b++){
+            for(int c=0; b<cellSize(2); c++){
+                for(auto pos: unitCellFractionalPositions){
+                    fractionalPositions.push_back( pos + Vector3d(a,b,c) );
+                }
+            }
+        }
+    }
+}
+
+void Supercell::calcUnitCellFractionalPositions(void){}
 void Supercell::calcSymmetryMatrices(void){}
 
 
 void Supercell::calcOrthogonalPositions(void){
+    orthogonalPositions.clear();
     for(auto pos : fractionalPositions){
         orthogonalPositions.push_back( crystalAxisMatrix * pos ) ;
     }
 }
 
-void Supercell::periodicBoundaryCondition(vector<Eigen::Vector3d> &positions){
+void Supercell::periodicBoundaryCondition(vector<Vector3d> &positions, Vector3i boundary){
     for(auto &pos : positions){
         for(int i=0; i<3; i++){
-            while(pos(i) >= (double)cellSize(i) ) pos(i) -= (double)cellSize(i);
-            while(pos(i) < 0.0) pos(i) += (double)cellSize(i);
+            while(pos(i) >= (double)boundary(i) ) pos(i) -= (double)boundary(i);
+            while(pos(i) < 0.0) pos(i) += (double)boundary(i);
         }
     }
 }
+
 vector<Vector3d> Supercell::glideReflection(vector<Vector3d> positions, Vector3d transVector, Vector3d reflectionPos){
     vector<Vector3d> newPositions;
     Matrix3d reflectionMatrix = Matrix3d::Zero();
@@ -118,16 +135,16 @@ vector<Vector3d> Supercell::glideReflection(vector<Vector3d> positions, Vector3d
         newPos = reflectionMatrix * pos + 2*reflectionPos + transVector;
         newPositions.push_back(newPos);
     }
-    periodicBoundaryCondition(newPositions);
+    periodicBoundaryCondition(newPositions, cellSize);
     return newPositions;
 }
 
 MatrixXi Supercell::calcSymmetryMatrix(vector<Vector3d> arr1, vector<Vector3d> arr2){
-    MatrixXi symmetriMatrix = MatrixXi::Zero(getNumAtoms(), getNumAtoms());
+    MatrixXi symmetriMatrix = MatrixXi::Zero(getNumPositions(), getNumPositions());
     for(int i=0; i<(int)arr1.size(); i++){
         Vector3d v1 = arr1[i];
         int j = find_if(arr2.begin(), arr2.end(), [v1](const Vector3d &v2){ return (v1-v2).norm() < ALLOWABLE_ERROR; }) - arr2.begin();
-        if ( j >= getNumAtoms() ){
+        if ( j >= getNumPositions() ){
             cerr << "ERROR: Faild to Find Pair (calcSymmetryMatrix): " << v1.transpose() << endl;
             for(auto v2: arr2) cout << v2.transpose() << endl;
             exit(1);
