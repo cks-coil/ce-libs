@@ -1,0 +1,7 @@
+*.d
+*.o
+product
+GPATH
+GRTAGS
+GSYMS
+GTAGS
