@@ -28,7 +28,7 @@ protected:
     void calcOrthogonalPositions(void);
     void periodicBoundaryCondition(std::vector<Eigen::Vector3d> &positions, Eigen::Vector3i cellSize);
     std::vector<Eigen::Vector3d> glideReflection(std::vector<Eigen::Vector3d> positions, Eigen::Vector3d transVector, Eigen::Vector3d reflectionPos);
-    Eigen::MatrixXi calcSymmetryMatrix(std::vector<Eigen::Vector3d> arr1, std::vector<Eigen::Vector3d> arr2);
+    Eigen::MatrixXi getSymmetryMatrix(std::vector<Eigen::Vector3d> arr1, std::vector<Eigen::Vector3d> arr2);
     Eigen::Vector3i cellSize;
     Eigen::Vector3d atomicPos;
     Eigen::Matrix3d crystalAxisMatrix;

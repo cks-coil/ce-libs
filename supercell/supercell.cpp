@@ -139,13 +139,13 @@ vector<Vector3d> Supercell::glideReflection(vector<Vector3d> positions, Vector3d
     return newPositions;
 }
 
-MatrixXi Supercell::calcSymmetryMatrix(vector<Vector3d> arr1, vector<Vector3d> arr2){
+MatrixXi Supercell::getSymmetryMatrix(vector<Vector3d> arr1, vector<Vector3d> arr2){
     MatrixXi symmetriMatrix = MatrixXi::Zero(getNumPositions(), getNumPositions());
     for(int i=0; i<(int)arr1.size(); i++){
         Vector3d v1 = arr1[i];
         int j = find_if(arr2.begin(), arr2.end(), [v1](const Vector3d &v2){ return (v1-v2).norm() < ALLOWABLE_ERROR; }) - arr2.begin();
         if ( j >= getNumPositions() ){
-            cerr << "ERROR: Faild to Find Pair (calcSymmetryMatrix): " << v1.transpose() << endl;
+            cerr << "ERROR: Faild to Find Pair (getSymmetryMatrix): " << v1.transpose() << endl;
             for(auto v2: arr2) cout << v2.transpose() << endl;
             exit(1);
         }
