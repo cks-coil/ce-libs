@@ -94,7 +94,7 @@ void Supercell::calcFractionalPositions(void){
     fractionalPositions.clear();
     for(int a=0; a<cellSize(0); a++){
         for(int b=0; b<cellSize(1); b++){
-            for(int c=0; b<cellSize(2); c++){
+            for(int c=0; c<cellSize(2); c++){
                 for(auto pos: unitCellFractionalPositions){
                     fractionalPositions.push_back( pos + Vector3d(a,b,c) );
                 }
