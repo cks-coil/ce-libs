@@ -153,3 +153,18 @@ MatrixXi Supercell::getSymmetryMatrix(vector<Vector3d> arr1, vector<Vector3d> ar
     }
     return symmetriMatrix;
 }
+
+vector<MatrixXi> Supercell::getPoweredMatrices(MatrixXi matrix, int maxN){
+    vector<MatrixXi> matrices;
+    matrices.push_back( MatrixXi::Identity(getNumPositions(), getNumPositions()) );
+    for(int i=1; i<=maxN; i++){
+        MatrixXi tmpMatrix = matrices.back() * matrix;
+        if( tmpMatrix == matrices.front() ){
+            return matrices;
+        }
+        matrices.push_back(tmpMatrix);
+    }
+    cerr << "ERROR: Faild to Find A^N==E (N<" << maxN << ") (getPowerdMatrices)" << endl;
+    cerr << matrix << endl;
+    exit(1);
+}
