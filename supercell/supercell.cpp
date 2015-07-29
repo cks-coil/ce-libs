@@ -164,7 +164,7 @@ vector<MatrixXi> Supercell::getPoweredMatrices(MatrixXi matrix, int maxN){
         }
         matrices.push_back(tmpMatrix);
     }
-    cerr << "ERROR: Faild to Find A^N==E (N<" << maxN << ") (getPowerdMatrices)" << endl;
+    cerr << "ERROR: Faild to Find A^N==E (N<=" << maxN << ") (getPowerdMatrices)" << endl;
     cerr << matrix << endl;
     exit(1);
 }
