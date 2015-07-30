@@ -30,7 +30,7 @@ void PbcnSupercell::calcSymmetryMatrices(void){
     for( auto alpha : getPoweredMatrices(alphaBMatrix, maxN) ){
         for( auto beta : getPoweredMatrices(betaCMatrix, maxN) ){
             for( auto gamma : getPoweredMatrices(gammaNMatrix, maxN) ){
-                symmetriMatrices.push_back( alpha * beta * gamma );
+                symmetryMatrices.push_back( alpha * beta * gamma );
             }
         }
     }

@@ -14,14 +14,14 @@ Supercell::Supercell(void){
     crystalAxisMatrix = Matrix3d::Zero();
     orthogonalPositions.push_back( Vector3d::Zero() );
     fractionalPositions.push_back( Vector3d::Zero() );
-    symmetriMatrices.push_back( MatrixXi::Zero(1,1) );
+    symmetryMatrices.push_back( MatrixXi::Zero(1,1) );
     unitCellFractionalPositions.push_back( Vector3d::Zero() );
 }
 
 Supercell::~Supercell(void){
     fractionalPositions.clear();
     orthogonalPositions.clear();
-    symmetriMatrices.clear();
+    symmetryMatrices.clear();
     unitCellFractionalPositions.clear();
 }
 
@@ -72,7 +72,7 @@ vector<Vector3d> Supercell::getOrthogonalPositions(void){
     return orthogonalPositions;
 }
 vector<MatrixXi> Supercell::getSymmetryMatrices(void){
-    return symmetriMatrices;
+    return symmetryMatrices;
 }
 
 void Supercell::updateVariables(void){
@@ -82,7 +82,7 @@ void Supercell::updateVariables(void){
     calcFractionalPositions();
     calcOrthogonalPositions();
 
-    symmetriMatrices.clear();
+    symmetryMatrices.clear();
     calcSymmetryMatrices();
     checkSymmetryMatrices();
 }
@@ -108,21 +108,21 @@ void Supercell::calcUnitCellFractionalPositions(void){}
 void Supercell::calcSymmetryMatrices(void){}
 
 void Supercell::checkSymmetryMatrices(void){
-    if( (int)symmetriMatrices.size() != getNumPositions() ){
-        cerr << "ERROR: Number of Symmetry Matrices (" << symmetriMatrices.size() << ") is NOT Equal to Number of Positions" << getNumPositions() << endl;
+    if( (int)symmetryMatrices.size() != getNumPositions() ){
+        cerr << "ERROR: Number of Symmetry Matrices (" << symmetryMatrices.size() << ") is NOT Equal to Number of Positions" << getNumPositions() << endl;
         exit(1);
     }
 
-    for(auto m1: symmetriMatrices){
+    for(auto m1: symmetryMatrices){
         int num=0;
-        for(auto m2: symmetriMatrices) if(m1==m2) num+=1;
+        for(auto m2: symmetryMatrices) if(m1==m2) num+=1;
         if(num !=1 ){
             cerr << "ERROR: Symmetriy Matrices are NOT Unique" << endl;
             exit(1);
         }
     }
     
-    for(auto m: symmetriMatrices){
+    for(auto m: symmetryMatrices){
         if( m * VectorXi::Ones(getNumPositions()) != VectorXi::Ones(getNumPositions()) ){
             cerr << "ERROR: Wrong Symmetriy Matrix" << endl;
             cerr << m << endl;
@@ -134,7 +134,7 @@ void Supercell::checkSymmetryMatrices(void){
         VectorXi sum = VectorXi::Zero( getNumPositions() );
         VectorXi v = VectorXi::Zero( getNumPositions() );
         v[i] = 1;
-        for(auto m: symmetriMatrices) sum += m*v;
+        for(auto m: symmetryMatrices) sum += m*v;
         if( sum != VectorXi::Ones(getNumPositions()) ){
             cerr << "ERROR: Wrong Symetriy Matrices" << endl;
             exit(1);
@@ -175,7 +175,7 @@ vector<Vector3d> Supercell::glideReflection(vector<Vector3d> positions, Vector3d
 }
 
 MatrixXi Supercell::getSymmetryMatrix(vector<Vector3d> arr1, vector<Vector3d> arr2){
-    MatrixXi symmetriMatrix = MatrixXi::Zero(getNumPositions(), getNumPositions());
+    MatrixXi symmetryMatrix = MatrixXi::Zero(getNumPositions(), getNumPositions());
     for(int i=0; i<(int)arr1.size(); i++){
         Vector3d v1 = arr1[i];
         int j = find_if(arr2.begin(), arr2.end(), [v1](const Vector3d &v2){ return (v1-v2).norm() < ALLOWABLE_ERROR; }) - arr2.begin();
@@ -184,9 +184,9 @@ MatrixXi Supercell::getSymmetryMatrix(vector<Vector3d> arr1, vector<Vector3d> ar
             for(auto v2: arr2) cout << v2.transpose() << endl;
             exit(1);
         }
-        symmetriMatrix(j ,i) = 1;
+        symmetryMatrix(j ,i) = 1;
     }
-    return symmetriMatrix;
+    return symmetryMatrix;
 }
 
 vector<MatrixXi> Supercell::getPoweredMatrices(MatrixXi matrix, int maxN){

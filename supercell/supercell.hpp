@@ -36,7 +36,7 @@ protected:
     Eigen::Matrix3d crystalAxisMatrix;
     std::vector<Eigen::Vector3d> fractionalPositions;
     std::vector<Eigen::Vector3d> orthogonalPositions;
-    std::vector<Eigen::MatrixXi> symmetriMatrices;
+    std::vector<Eigen::MatrixXi> symmetryMatrices;
     std::vector<Eigen::Vector3d> unitCellFractionalPositions;
 };
 
