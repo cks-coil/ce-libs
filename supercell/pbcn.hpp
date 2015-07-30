@@ -8,7 +8,7 @@ public:
     PbcnSupercell(void);
 protected:
     void calcUnitCellFractionalPositions(void);
-    void calcSymmetryMatrices(void);
+    void calcSpaceGroupSymmetryMatrices(void);
 };
 
 #endif

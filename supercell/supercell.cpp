@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <math.h>
 #include <iostream>
+#include <numeric>
 
 #define ALLOWABLE_ERROR pow(10.0, -7)
 
@@ -15,7 +16,6 @@ Supercell::Supercell(void){
     orthogonalPositions.push_back( Vector3d::Zero() );
     fractionalPositions.push_back( Vector3d::Zero() );
     symmetryMatrices.push_back( MatrixXi::Zero(1,1) );
-    unitCellFractionalPositions.push_back( Vector3d::Zero() );
 }
 
 Supercell::~Supercell(void){
@@ -23,6 +23,7 @@ Supercell::~Supercell(void){
     orthogonalPositions.clear();
     symmetryMatrices.clear();
     unitCellFractionalPositions.clear();
+    spaceGroupSymmetryMatrices.clear();
 }
 
 void Supercell::setCellSize(Vector3i cellSize){
@@ -82,7 +83,6 @@ void Supercell::updateVariables(void){
     calcFractionalPositions();
     calcOrthogonalPositions();
 
-    symmetryMatrices.clear();
     calcSymmetryMatrices();
     checkSymmetryMatrices();
 }
@@ -104,24 +104,27 @@ void Supercell::calcFractionalPositions(void){
     }
 }
 
+void Supercell::calcSymmetryMatrices(void){
+    spaceGroupSymmetryMatrices.clear();
+    calcSpaceGroupSymmetryMatrices();
+
+    symmetryMatrices.clear();
+    for(auto slide : getSlideMatrices() ){
+        for(auto spaceGroup: spaceGroupSymmetryMatrices ){
+            symmetryMatrices.push_back(slide * spaceGroup);
+        }
+    }
+}
+
 void Supercell::calcUnitCellFractionalPositions(void){}
-void Supercell::calcSymmetryMatrices(void){}
+void Supercell::calcSpaceGroupSymmetryMatrices(void){}
 
 void Supercell::checkSymmetryMatrices(void){
     if( (int)symmetryMatrices.size() != getNumPositions() ){
-        cerr << "ERROR: Number of Symmetry Matrices (" << symmetryMatrices.size() << ") is NOT Equal to Number of Positions" << getNumPositions() << endl;
+        cerr << "ERROR: Number of Symmetry Matrices (" << symmetryMatrices.size() << ") is NOT Equal to Number of Positions (" << getNumPositions() << ")" << endl;
         exit(1);
     }
 
-    for(auto m1: symmetryMatrices){
-        int num=0;
-        for(auto m2: symmetryMatrices) if(m1==m2) num+=1;
-        if(num !=1 ){
-            cerr << "ERROR: Symmetriy Matrices are NOT Unique" << endl;
-            exit(1);
-        }
-    }
-    
     for(auto m: symmetryMatrices){
         if( m * VectorXi::Ones(getNumPositions()) != VectorXi::Ones(getNumPositions()) ){
             cerr << "ERROR: Wrong Symmetriy Matrix" << endl;
@@ -130,15 +133,11 @@ void Supercell::checkSymmetryMatrices(void){
         }
     }
     
-    for(int i=0; i< getNumPositions(); i++){
-        VectorXi sum = VectorXi::Zero( getNumPositions() );
-        VectorXi v = VectorXi::Zero( getNumPositions() );
-        v[i] = 1;
-        for(auto m: symmetryMatrices) sum += m*v;
-        if( sum != VectorXi::Ones(getNumPositions()) ){
-            cerr << "ERROR: Wrong Symetriy Matrices" << endl;
-            exit(1);
-        }
+    MatrixXi zeroMatrix = MatrixXi::Zero(getNumPositions(), getNumPositions());
+    MatrixXi sum = accumulate(symmetryMatrices.begin(), symmetryMatrices.end(), zeroMatrix);
+    if(sum != MatrixXi::Ones(getNumPositions(), getNumPositions())){
+        cerr << "ERROR: Wrong Symmetriy Matrices" << endl;
+        exit(1);
     }
 }
 
@@ -202,4 +201,20 @@ vector<MatrixXi> Supercell::getPoweredMatrices(MatrixXi matrix, int maxN){
     cerr << "ERROR: Faild to Find A^N==E (N<=" << maxN << ") (getPowerdMatrices)" << endl;
     cerr << matrix << endl;
     exit(1);
+}
+
+vector<MatrixXi> Supercell::getSlideMatrices(void){
+    vector<MatrixXi> slideMatrices;
+    MatrixXi aSlideMatrix, bSlideMatrix, cSlideMatrix;
+    aSlideMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(1,0,0), Vector3d(0,0,0)) );
+    bSlideMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,1,0), Vector3d(0,0,0)) );
+    cSlideMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,0,1), Vector3d(0,0,0)) );
+    for(auto a: getPoweredMatrices(aSlideMatrix, getCellSize().maxCoeff()) ){
+        for(auto b: getPoweredMatrices(bSlideMatrix, getCellSize().maxCoeff()) ){
+            for(auto c: getPoweredMatrices(cSlideMatrix, getCellSize().maxCoeff()) ){
+                slideMatrices.push_back(a*b*c);
+            }
+        }
+    }
+    return slideMatrices;
 }

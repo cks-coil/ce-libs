@@ -1,4 +1,5 @@
 #include "pbcn.hpp"
+#include <iostream>
 
 using namespace std;
 using namespace Eigen;
@@ -20,18 +21,17 @@ void PbcnSupercell::calcUnitCellFractionalPositions(void){
     unitCellFractionalPositions.push_back( Vector3d(-x, -y, -z) );
 }
 
-void PbcnSupercell::calcSymmetryMatrices(void){
-    int maxN = getCellSize().maxCoeff() * 2;
-    MatrixXi alphaBMatrix, betaCMatrix, gammaNMatrix;
-    alphaBMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,0.5,0), Vector3d(0.25,0,0)) );
-    betaCMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,0,0.5), Vector3d(0,0.5,0)) );
-    gammaNMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0.5,0.5,0), Vector3d(0,0,0.25))) ;
-
-    for( auto alpha : getPoweredMatrices(alphaBMatrix, maxN) ){
-        for( auto beta : getPoweredMatrices(betaCMatrix, maxN) ){
-            for( auto gamma : getPoweredMatrices(gammaNMatrix, maxN) ){
-                symmetryMatrices.push_back( alpha * beta * gamma );
-            }
-        }
-    }
+void PbcnSupercell::calcSpaceGroupSymmetryMatrices(void){
+    MatrixXi alphaB, betaC, gammaN;
+    alphaB = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,0.5,0), Vector3d(0.25,0,0)) );
+    betaC = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,0,0.5), Vector3d(0,0.5,0)) );
+    gammaN = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0.5,0.5,0), Vector3d(0,0,0.25))) ;
+    spaceGroupSymmetryMatrices.push_back( MatrixXi::Identity(getNumPositions(), getNumPositions()) );
+    spaceGroupSymmetryMatrices.push_back( alphaB );
+    spaceGroupSymmetryMatrices.push_back( betaC );
+    spaceGroupSymmetryMatrices.push_back( gammaN );
+    spaceGroupSymmetryMatrices.push_back( alphaB * betaC );
+    spaceGroupSymmetryMatrices.push_back( betaC * gammaN );
+    spaceGroupSymmetryMatrices.push_back( gammaN * alphaB );
+    spaceGroupSymmetryMatrices.push_back( alphaB * betaC * gammaN );
 }
