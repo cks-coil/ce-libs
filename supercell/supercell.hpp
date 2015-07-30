@@ -25,6 +25,7 @@ protected:
     void calcFractionalPositions(void);
     virtual void calcUnitCellFractionalPositions(void);
     virtual void calcSymmetryMatrices(void);
+    void checkSymmetryMatrices(void);
     void calcOrthogonalPositions(void);
     void periodicBoundaryCondition(std::vector<Eigen::Vector3d> &positions, Eigen::Vector3i cellSize);
     std::vector<Eigen::Vector3d> glideReflection(std::vector<Eigen::Vector3d> positions, Eigen::Vector3d transVector, Eigen::Vector3d reflectionPos);
