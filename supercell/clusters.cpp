@@ -14,7 +14,15 @@ bool operator< (const SVectorXi &obj1, const SVectorXi &obj2){
     return (it.value() < 0);
 }
 
-Clusters::Clusters(void){}
+Clusters::Clusters(void){
+    tgt = nullptr;
+    maxDistance = 0;
+    maxNum = 0;
+}
+
+Clusters::~Clusters(void){
+    uniqueClusters.clear();
+}
 
 void Clusters::setSupercell(Supercell *tgt){
     if(  ( tgt->getCellSize().prod() ) %2 == 0  ){
@@ -22,17 +30,29 @@ void Clusters::setSupercell(Supercell *tgt){
         exit(1);
     } 
     this->tgt = tgt;
+    findUniqueClusters();
 }
 
 void Clusters::setMaxDistance(double maxDistance){
     this->maxDistance = maxDistance;
+    findUniqueClusters();
 }
 
 void Clusters::setMaxNum(int maxNum){
     this->maxNum = maxNum;
+    findUniqueClusters();
 }
 
-void Clusters::findClusters(void){
+vector<SVectorXi> Clusters::getUniqueClusters(void){
+    return uniqueClusters;
+}
+int Clusters::getNumUniqueClusters(void){
+    return uniqueClusters.size();
+}
+
+
+void Clusters::findUniqueClusters(void){
+    if(tgt == nullptr || maxNum == 0 || maxDistance == 0) return;
     SVectorXi emptyCluster(tgt->getNumPositions());
     SVectorXi singleCluster(tgt->getNumPositions());
     vector<SVectorXi> preClusters;
@@ -42,7 +62,10 @@ void Clusters::findClusters(void){
     uniqueClusters.push_back(emptyCluster);
     uniqueClusters.push_back(singleCluster);
     preClusters.push_back(singleCluster);
-    getNextClusters(preClusters);
+    for(int n=2; n<= maxNum; n++){
+        preClusters = getNextUniqueClusters(preClusters);
+        for(auto cluster : preClusters) uniqueClusters.push_back(cluster);
+    }
 }
 
 bool Clusters::isRange(SVectorXi cluster){
@@ -55,31 +78,33 @@ bool Clusters::isRange(SVectorXi cluster){
     }
     return true;
 }
+
 bool Clusters::isUnique(SVectorXi cluster, const vector<SVectorXi> &refs){
-    vector<SVectorXi> clusters;
+    auto comp = [](const SVectorXi &obj1, const SVectorXi &obj2){return obj1<obj2;};
+    set<SVectorXi, decltype(comp)> clusterSet(comp);
     for(auto matrix: tgt->getSymmetryMatrices()){
         SVectorXi tmpCluster = matrix*cluster;
         if( tmpCluster.coeff( tgt->getSupercellIndex(0,tgt->getCellSize()/2) ) == 1 ){
-            clusters.push_back( tmpCluster );
+            clusterSet.insert( tmpCluster );
         }
     }
-    sort(clusters.begin(), clusters.end(),
-         [](const SVectorXi &obj1, const SVectorXi &obj2){return obj1<obj2;} );
+    for(auto ref: refs){
+        if( clusterSet.find(ref) != clusterSet.end() ) return false;
+    }
     return true;
 }
 
 
-vector<SVectorXi> Clusters::getNextClusters(const vector<SVectorXi> &seeds){
-    vector<SVectorXi> nextClusters;
+vector<SVectorXi> Clusters::getNextUniqueClusters(const vector<SVectorXi> &seeds){
+    vector<SVectorXi> nextUniqueClusters;
     for(auto seed: seeds){
         for(int i=0; i<tgt->getNumPositions(); i++){
             SVectorXi tmpCluster = seed;;
-            tmpCluster.coeffRef(tgt->getNumPositions()-1)=1;
             if( seed.coeff(i)!=0 ) continue;
             tmpCluster.coeffRef(i) = 1;
-            if( isRange(tmpCluster) && isUnique(tmpCluster, nextClusters)) nextClusters.push_back(tmpCluster);
+            if( isRange(tmpCluster) && isUnique(tmpCluster, nextUniqueClusters)) nextUniqueClusters.push_back(tmpCluster);
         }
     }
-    return nextClusters;
+    return nextUniqueClusters;
 }
 

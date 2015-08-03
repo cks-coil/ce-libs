@@ -12,16 +12,18 @@ namespace Eigen{
 class Clusters{
 public:
     Clusters(void);
+    ~Clusters(void);
     void setSupercell(Supercell *tgt);
     void setMaxDistance(double maxDistance);
     void setMaxNum(int maxNum);
-    void findClusters(void);
+    std::vector<Eigen::SVectorXi> getUniqueClusters(void);
+    int getNumUniqueClusters(void);
 private:
+    void findUniqueClusters(void);
     bool isRange(Eigen::SVectorXi cluster);
     bool isUnique(Eigen::SVectorXi cluster, const std::vector<Eigen::SVectorXi> &refs);
-    std::vector<Eigen::SVectorXi> getNextClusters(const std::vector<Eigen::SVectorXi> &seeds);
+    std::vector<Eigen::SVectorXi> getNextUniqueClusters(const std::vector<Eigen::SVectorXi> &seeds);
     std::vector<Eigen::SVectorXi> uniqueClusters;
-    std::vector<Eigen::SVectorXi> allClusters;
     Supercell *tgt;
     int maxNum;
     int maxDistance;
