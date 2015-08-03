@@ -72,7 +72,7 @@ bool Clusters::isRange(SVectorXi cluster){
     cluster.prune(0);
     for(SVectorXi::InnerIterator it1(cluster); it1; ++it1){
         for(SVectorXi::InnerIterator it2=it1; it2; ++it2){
-            Vector3d diffVector;
+            Vector3d diffVector = tgt->getOrthogonalPos(it1.index()) - tgt->getOrthogonalPos(it2.index());
             if ( diffVector.norm() > maxDistance ) return false;
         }
     }
