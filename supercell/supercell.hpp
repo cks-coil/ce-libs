@@ -27,8 +27,8 @@ public:
     std::vector<Eigen::Vector3d> getFractionalPositions(void);
     std::vector<Eigen::Vector3d> getOrthogonalPositions(void);
     std::vector<Eigen::SMatrixXi> getSymmetryMatrices(void);
-protected:
     int getSupercellIndex(int unitCellIndex, Eigen::Vector3i cell);
+protected:
     void updateVariables(void);
     void calcFractionalPositions(void);
     void calcSymmetryMatrices(void);
@@ -50,7 +50,6 @@ protected:
     std::vector<Eigen::Vector3d> unitCellFractionalPositions;
     std::vector<Eigen::SMatrixXi> spaceGroupSymmetryMatrices;
 };
-
 
 bool operator == (const Eigen::SMatrixXi &obj1, const Eigen::SMatrixXi &obj2);
 

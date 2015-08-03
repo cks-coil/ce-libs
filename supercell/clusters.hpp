@@ -17,11 +17,16 @@ public:
     void setMaxNum(int maxNum);
     void findClusters(void);
 private:
+    bool isRange(Eigen::SVectorXi cluster);
+    bool isUnique(Eigen::SVectorXi cluster, const std::vector<Eigen::SVectorXi> &refs);
+    std::vector<Eigen::SVectorXi> getNextClusters(const std::vector<Eigen::SVectorXi> &seeds);
     std::vector<Eigen::SVectorXi> uniqueClusters;
     std::vector<Eigen::SVectorXi> allClusters;
     Supercell *tgt;
     int maxNum;
     int maxDistance;
 };
+
+inline bool operator < (const Eigen::SparseVector<int> &obj1, const  Eigen::SparseVector<int> &obj2);
 
 #endif
