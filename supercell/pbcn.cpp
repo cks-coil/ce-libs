@@ -22,11 +22,13 @@ void PbcnSupercell::calcUnitCellFractionalPositions(void){
 }
 
 void PbcnSupercell::calcSpaceGroupSymmetryMatrices(void){
-    MatrixXi alphaB, betaC, gammaN;
+    SMatrixXi alphaB, betaC, gammaN;
+    SMatrixXi identitySMatrix(getNumPositions(), getNumPositions());
+    identitySMatrix.setIdentity();
     alphaB = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,0.5,0), Vector3d(0.25,0,0)) );
     betaC = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,0,0.5), Vector3d(0,0.5,0)) );
     gammaN = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0.5,0.5,0), Vector3d(0,0,0.25))) ;
-    spaceGroupSymmetryMatrices.push_back( MatrixXi::Identity(getNumPositions(), getNumPositions()) );
+    spaceGroupSymmetryMatrices.push_back( identitySMatrix );
     spaceGroupSymmetryMatrices.push_back( alphaB );
     spaceGroupSymmetryMatrices.push_back( betaC );
     spaceGroupSymmetryMatrices.push_back( gammaN );

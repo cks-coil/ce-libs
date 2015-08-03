@@ -9,13 +9,11 @@
 using namespace Eigen;
 using namespace std;
 
+
 Supercell::Supercell(void){
     cellSize = Vector3i::Zero();
     atomicPos = Vector3d::Zero();
     crystalAxisMatrix = Matrix3d::Zero();
-    orthogonalPositions.push_back( Vector3d::Zero() );
-    fractionalPositions.push_back( Vector3d::Zero() );
-    symmetryMatrices.push_back( MatrixXi::Zero(1,1) );
 }
 
 Supercell::~Supercell(void){
@@ -72,7 +70,7 @@ vector<Vector3d> Supercell::getFractionalPositions(void){
 vector<Vector3d> Supercell::getOrthogonalPositions(void){
     return orthogonalPositions;
 }
-vector<MatrixXi> Supercell::getSymmetryMatrices(void){
+vector<SMatrixXi> Supercell::getSymmetryMatrices(void){
     return symmetryMatrices;
 }
 
@@ -133,7 +131,8 @@ void Supercell::checkSymmetryMatrices(void){
         }
     }
     
-    MatrixXi zeroMatrix = MatrixXi::Zero(getNumPositions(), getNumPositions());
+    SMatrixXi zeroMatrix(getNumPositions(), getNumPositions());
+    zeroMatrix.setZero();
     MatrixXi sum = accumulate(symmetryMatrices.begin(), symmetryMatrices.end(), zeroMatrix);
     if(sum != MatrixXi::Ones(getNumPositions(), getNumPositions())){
         cerr << "ERROR: Wrong Symmetriy Matrices" << endl;
@@ -173,27 +172,29 @@ vector<Vector3d> Supercell::glideReflection(vector<Vector3d> positions, Vector3d
     return newPositions;
 }
 
-MatrixXi Supercell::getSymmetryMatrix(vector<Vector3d> arr1, vector<Vector3d> arr2){
-    MatrixXi symmetryMatrix = MatrixXi::Zero(getNumPositions(), getNumPositions());
-    for(int i=0; i<(int)arr1.size(); i++){
-        Vector3d v1 = arr1[i];
-        int j = find_if(arr2.begin(), arr2.end(), [v1](const Vector3d &v2){ return (v1-v2).norm() < ALLOWABLE_ERROR; }) - arr2.begin();
-        if ( j >= getNumPositions() ){
+SMatrixXi Supercell::getSymmetryMatrix(vector<Vector3d> arr1, vector<Vector3d> arr2){
+    SMatrixXi symmetryMatrix(getNumPositions(), getNumPositions());
+    for(int j=0; j<(int)arr1.size(); j++){
+        Vector3d v1 = arr1[j];
+        int i = find_if(arr2.begin(), arr2.end(), [v1](const Vector3d &v2){ return (v1-v2).norm() < ALLOWABLE_ERROR; }) - arr2.begin();
+        if ( i >= getNumPositions() ){
             cerr << "ERROR: Faild to Find Pair (getSymmetryMatrix): " << v1.transpose() << endl;
-            for(auto v2: arr2) cout << v2.transpose() << endl;
+            for(auto v2: arr2) cerr << v2.transpose() << endl;
             exit(1);
         }
-        symmetryMatrix(j ,i) = 1;
+        symmetryMatrix.insert(i ,j) = 1;
     }
     return symmetryMatrix;
 }
 
-vector<MatrixXi> Supercell::getPoweredMatrices(MatrixXi matrix, int maxN){
-    vector<MatrixXi> matrices;
-    matrices.push_back( MatrixXi::Identity(getNumPositions(), getNumPositions()) );
+vector<SMatrixXi> Supercell::getPoweredMatrices(SMatrixXi matrix, int maxN){
+    vector<SMatrixXi> matrices;
+    SMatrixXi identityMatrix(getNumPositions(), getNumPositions());
+    identityMatrix.setIdentity();
+    matrices.push_back( identityMatrix );
     for(int i=1; i<=maxN; i++){
-        MatrixXi tmpMatrix = matrices.back() * matrix;
-        if( tmpMatrix == matrices.front() ){
+        SMatrixXi tmpMatrix = matrices.back() * matrix;
+        if( tmpMatrix == identityMatrix ){
             return matrices;
         }
         matrices.push_back(tmpMatrix);
@@ -203,9 +204,9 @@ vector<MatrixXi> Supercell::getPoweredMatrices(MatrixXi matrix, int maxN){
     exit(1);
 }
 
-vector<MatrixXi> Supercell::getSlideMatrices(void){
-    vector<MatrixXi> slideMatrices;
-    MatrixXi aSlideMatrix, bSlideMatrix, cSlideMatrix;
+vector<SMatrixXi> Supercell::getSlideMatrices(void){
+    vector<SMatrixXi> slideMatrices;
+    SMatrixXi aSlideMatrix, bSlideMatrix, cSlideMatrix;
     aSlideMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(1,0,0), Vector3d(0,0,0)) );
     bSlideMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,1,0), Vector3d(0,0,0)) );
     cSlideMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,0,1), Vector3d(0,0,0)) );
@@ -217,4 +218,9 @@ vector<MatrixXi> Supercell::getSlideMatrices(void){
         }
     }
     return slideMatrices;
+}
+
+bool operator == (const SMatrixXi &obj1, const SMatrixXi &obj2){
+    Eigen::SMatrixXi tmpMatrix = obj1- obj2;
+    return tmpMatrix.norm() == 0;
 }

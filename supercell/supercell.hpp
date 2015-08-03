@@ -3,6 +3,11 @@
 
 #include <vector>
 #include <Eigen/Core>
+#include <Eigen/Sparse>
+
+namespace Eigen{
+    typedef SparseMatrix<int> SMatrixXi;
+}
 
 class Supercell{
 public:
@@ -19,7 +24,7 @@ public:
     Eigen::Vector3d getOrthogonalPos(int index);
     std::vector<Eigen::Vector3d> getFractionalPositions(void);
     std::vector<Eigen::Vector3d> getOrthogonalPositions(void);
-    std::vector<Eigen::MatrixXi> getSymmetryMatrices(void);
+    std::vector<Eigen::SMatrixXi> getSymmetryMatrices(void);
 protected:
     void updateVariables(void);
     void calcFractionalPositions(void);
@@ -30,17 +35,20 @@ protected:
     void calcOrthogonalPositions(void);
     void periodicBoundaryCondition(std::vector<Eigen::Vector3d> &positions, Eigen::Vector3i cellSize);
     std::vector<Eigen::Vector3d> glideReflection(std::vector<Eigen::Vector3d> positions, Eigen::Vector3d transVector, Eigen::Vector3d reflectionPos);
-    Eigen::MatrixXi getSymmetryMatrix(std::vector<Eigen::Vector3d> arr1, std::vector<Eigen::Vector3d> arr2);
-    std::vector<Eigen::MatrixXi> getPoweredMatrices(Eigen::MatrixXi matrix, int maxN);
-    std::vector<Eigen::MatrixXi> getSlideMatrices(void);
+    Eigen::SMatrixXi getSymmetryMatrix(std::vector<Eigen::Vector3d> arr1, std::vector<Eigen::Vector3d> arr2);
+    std::vector<Eigen::SMatrixXi> getPoweredMatrices(Eigen::SMatrixXi matrix, int maxN);
+    std::vector<Eigen::SMatrixXi> getSlideMatrices(void);
     Eigen::Vector3i cellSize;
     Eigen::Vector3d atomicPos;
     Eigen::Matrix3d crystalAxisMatrix;
     std::vector<Eigen::Vector3d> fractionalPositions;
     std::vector<Eigen::Vector3d> orthogonalPositions;
-    std::vector<Eigen::MatrixXi> symmetryMatrices;
+    std::vector<Eigen::SMatrixXi> symmetryMatrices;
     std::vector<Eigen::Vector3d> unitCellFractionalPositions;
-    std::vector<Eigen::MatrixXi> spaceGroupSymmetryMatrices;
+    std::vector<Eigen::SMatrixXi> spaceGroupSymmetryMatrices;
 };
+
+
+bool operator == (const Eigen::SMatrixXi &obj1, const Eigen::SMatrixXi &obj2);
 
 #endif
