@@ -20,12 +20,15 @@ public:
     int getNumUnitCellPositions(void);
     Eigen::Vector3i getCellSize(void);
     Eigen::Matrix3d getCrystalAxisMatrix(void);
-    Eigen::Vector3d getFractionalPos(int index);
-    Eigen::Vector3d getOrthogonalPos(int index);
+    Eigen::Vector3d getFractionalPos(int supercellIndex);
+    Eigen::Vector3d getFractionalPos(int unitCellIndex, Eigen::Vector3i cell);
+    Eigen::Vector3d getOrthogonalPos(int supercellIndex);
+    Eigen::Vector3d getOrthogonalPos(int unitCellIndex, Eigen::Vector3i cell);
     std::vector<Eigen::Vector3d> getFractionalPositions(void);
     std::vector<Eigen::Vector3d> getOrthogonalPositions(void);
     std::vector<Eigen::SMatrixXi> getSymmetryMatrices(void);
 protected:
+    int getSupercellIndex(int unitCellIndex, Eigen::Vector3i cell);
     void updateVariables(void);
     void calcFractionalPositions(void);
     void calcSymmetryMatrices(void);
