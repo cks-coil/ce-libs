@@ -26,19 +26,19 @@ public:
     Eigen::Vector3d getOrthogonalPos(int unitCellIndex, Eigen::Vector3i cell);
     std::vector<Eigen::Vector3d> getFractionalPositions(void);
     std::vector<Eigen::Vector3d> getOrthogonalPositions(void);
-    std::vector<Eigen::SMatrixXi> getSymmetryMatrices(void);
+    std::vector<Eigen::SMatrixXi> getSymOpMatrices(void);
     int getSupercellIndex(int unitCellIndex, Eigen::Vector3i cell);
     void calcPositions(void);
-    void calcSymmetryMatrices(void);
-    void checkSymmetryMatrices(void);
+    void calcSymOpMatrices(void);
+    void checkSymOpMatrices(void);
 protected:
     void calcFractionalPositions(void);
     void calcOrthogonalPositions(void);
     virtual void calcUnitCellFractionalPositions(void);
-    virtual void calcSpaceGroupSymmetryMatrices(void);
+    virtual void calcSpaceGroupSymOpMatrices(void);
     void periodicBoundaryCondition(std::vector<Eigen::Vector3d> &positions, Eigen::Vector3i cellSize);
     std::vector<Eigen::Vector3d> glideReflection(std::vector<Eigen::Vector3d> positions, Eigen::Vector3d transVector, Eigen::Vector3d reflectionPos);
-    Eigen::SMatrixXi getSymmetryMatrix(std::vector<Eigen::Vector3d> arr1, std::vector<Eigen::Vector3d> arr2);
+    Eigen::SMatrixXi getSymOpMatrix(std::vector<Eigen::Vector3d> arr1, std::vector<Eigen::Vector3d> arr2);
     std::vector<Eigen::SMatrixXi> getPoweredMatrices(Eigen::SMatrixXi matrix, int maxN);
     std::vector<Eigen::SMatrixXi> getSlideMatrices(void);
     Eigen::Vector3i cellSize;
@@ -46,9 +46,9 @@ protected:
     Eigen::Matrix3d crystalAxisMatrix;
     std::vector<Eigen::Vector3d> fractionalPositions;
     std::vector<Eigen::Vector3d> orthogonalPositions;
-    std::vector<Eigen::SMatrixXi> symmetryMatrices;
+    std::vector<Eigen::SMatrixXi> symOpMatrices;
     std::vector<Eigen::Vector3d> unitCellFractionalPositions;
-    std::vector<Eigen::SMatrixXi> spaceGroupSymmetryMatrices;
+    std::vector<Eigen::SMatrixXi> spaceGroupSymOpMatrices;
 };
 
 bool operator == (const Eigen::SMatrixXi &obj1, const Eigen::SMatrixXi &obj2);

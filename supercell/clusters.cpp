@@ -79,7 +79,7 @@ bool Clusters::isRange(SVectorXi cluster){
 bool Clusters::isUnique(SVectorXi cluster, const vector<SVectorXi> &refs){
     auto comp = [](const SVectorXi &obj1, const SVectorXi &obj2){return obj1<obj2;};
     set<SVectorXi, decltype(comp)> clusterSet(comp);
-    for(auto matrix: tgt->getSymmetryMatrices()){
+    for(auto matrix: tgt->getSymOpMatrices()){
         SVectorXi tmpCluster = matrix*cluster;
         if( tmpCluster.coeff( tgt->getSupercellIndex(0,tgt->getCellSize()/2) ) == 1 ){
             clusterSet.insert( tmpCluster );

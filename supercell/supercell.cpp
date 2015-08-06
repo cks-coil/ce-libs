@@ -19,9 +19,9 @@ Supercell::Supercell(void){
 Supercell::~Supercell(void){
     fractionalPositions.clear();
     orthogonalPositions.clear();
-    symmetryMatrices.clear();
+    symOpMatrices.clear();
     unitCellFractionalPositions.clear();
-    spaceGroupSymmetryMatrices.clear();
+    spaceGroupSymOpMatrices.clear();
 }
 
 void Supercell::setCellSize(Vector3i cellSize){
@@ -72,8 +72,8 @@ vector<Vector3d> Supercell::getFractionalPositions(void){
 vector<Vector3d> Supercell::getOrthogonalPositions(void){
     return orthogonalPositions;
 }
-vector<SMatrixXi> Supercell::getSymmetryMatrices(void){
-    return symmetryMatrices;
+vector<SMatrixXi> Supercell::getSymOpMatrices(void){
+    return symOpMatrices;
 }
 
 int Supercell::getSupercellIndex(int unitCellIndex, Vector3i cell){
@@ -94,27 +94,27 @@ void Supercell::calcPositions(void){
     calcOrthogonalPositions();
 }
 
-void Supercell::calcSymmetryMatrices(void){
+void Supercell::calcSymOpMatrices(void){
     if( fractionalPositions.empty() ) return;
 
-    spaceGroupSymmetryMatrices.clear();
-    calcSpaceGroupSymmetryMatrices();
+    spaceGroupSymOpMatrices.clear();
+    calcSpaceGroupSymOpMatrices();
 
-    symmetryMatrices.clear();
+    symOpMatrices.clear();
     for(auto slide : getSlideMatrices() ){
-        for(auto spaceGroup: spaceGroupSymmetryMatrices ){
-            symmetryMatrices.push_back(slide * spaceGroup);
+        for(auto spaceGroup: spaceGroupSymOpMatrices ){
+            symOpMatrices.push_back(slide * spaceGroup);
         }
     }
 }
 
-void Supercell::checkSymmetryMatrices(void){
-    if( (int)symmetryMatrices.size() != getNumPositions() ){
-        cerr << "ERROR: Number of Symmetry Matrices (" << symmetryMatrices.size() << ") is NOT Equal to Number of Positions (" << getNumPositions() << ")" << endl;
+void Supercell::checkSymOpMatrices(void){
+    if( (int)symOpMatrices.size() != getNumPositions() ){
+        cerr << "ERROR: Number of SymOp Matrices (" << symOpMatrices.size() << ") is NOT Equal to Number of Positions (" << getNumPositions() << ")" << endl;
         exit(1);
     }
 
-    for(auto m: symmetryMatrices){
+    for(auto m: symOpMatrices){
         if( m * VectorXi::Ones(getNumPositions()) != VectorXi::Ones(getNumPositions()) ){
             cerr << "ERROR: Wrong Symmetriy Matrix" << endl;
             cerr << m << endl;
@@ -124,13 +124,13 @@ void Supercell::checkSymmetryMatrices(void){
     
     SMatrixXi zeroMatrix(getNumPositions(), getNumPositions());
     zeroMatrix.setZero();
-    MatrixXi sum = accumulate(symmetryMatrices.begin(), symmetryMatrices.end(), zeroMatrix);
+    MatrixXi sum = accumulate(symOpMatrices.begin(), symOpMatrices.end(), zeroMatrix);
     if(sum != MatrixXi::Ones(getNumPositions(), getNumPositions())){
         cerr << "ERROR: Wrong Symmetriy Matrices" << endl;
         exit(1);
     }
 
-    cerr << "PASS: Symmetry Matrices Test" << endl;
+    cerr << "PASS: SymOp Matrices Test" << endl;
 }
 
 void Supercell::calcFractionalPositions(void){
@@ -158,7 +158,7 @@ void Supercell::calcOrthogonalPositions(void){
 }
 
 void Supercell::calcUnitCellFractionalPositions(void){}
-void Supercell::calcSpaceGroupSymmetryMatrices(void){}
+void Supercell::calcSpaceGroupSymOpMatrices(void){}
 
 void Supercell::periodicBoundaryCondition(vector<Vector3d> &positions, Vector3i boundary){
     for(auto &pos : positions){
@@ -185,19 +185,19 @@ vector<Vector3d> Supercell::glideReflection(vector<Vector3d> positions, Vector3d
     return newPositions;
 }
 
-SMatrixXi Supercell::getSymmetryMatrix(vector<Vector3d> arr1, vector<Vector3d> arr2){
-    SMatrixXi symmetryMatrix(getNumPositions(), getNumPositions());
+SMatrixXi Supercell::getSymOpMatrix(vector<Vector3d> arr1, vector<Vector3d> arr2){
+    SMatrixXi symOpMatrix(getNumPositions(), getNumPositions());
     for(int j=0; j<(int)arr1.size(); j++){
         Vector3d v1 = arr1[j];
         int i = find_if(arr2.begin(), arr2.end(), [v1](const Vector3d &v2){ return (v1-v2).norm() < ALLOWABLE_ERROR; }) - arr2.begin();
         if ( i >= getNumPositions() ){
-            cerr << "ERROR: Faild to Find Pair (getSymmetryMatrix): " << v1.transpose() << endl;
+            cerr << "ERROR: Faild to Find Pair (getSymOpMatrix): " << v1.transpose() << endl;
             for(auto v2: arr2) cerr << v2.transpose() << endl;
             exit(1);
         }
-        symmetryMatrix.insert(i ,j) = 1;
+        symOpMatrix.insert(i ,j) = 1;
     }
-    return symmetryMatrix;
+    return symOpMatrix;
 }
 
 vector<SMatrixXi> Supercell::getPoweredMatrices(SMatrixXi matrix, int maxN){
@@ -220,9 +220,9 @@ vector<SMatrixXi> Supercell::getPoweredMatrices(SMatrixXi matrix, int maxN){
 vector<SMatrixXi> Supercell::getSlideMatrices(void){
     vector<SMatrixXi> slideMatrices;
     SMatrixXi aSlideMatrix, bSlideMatrix, cSlideMatrix;
-    aSlideMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(1,0,0), Vector3d(0,0,0)) );
-    bSlideMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,1,0), Vector3d(0,0,0)) );
-    cSlideMatrix = getSymmetryMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,0,1), Vector3d(0,0,0)) );
+    aSlideMatrix = getSymOpMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(1,0,0), Vector3d(0,0,0)) );
+    bSlideMatrix = getSymOpMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,1,0), Vector3d(0,0,0)) );
+    cSlideMatrix = getSymOpMatrix( fractionalPositions, glideReflection(fractionalPositions, Vector3d(0,0,1), Vector3d(0,0,0)) );
     for(auto a: getPoweredMatrices(aSlideMatrix, getCellSize().maxCoeff()) ){
         for(auto b: getPoweredMatrices(bSlideMatrix, getCellSize().maxCoeff()) ){
             for(auto c: getPoweredMatrices(cSlideMatrix, getCellSize().maxCoeff()) ){
