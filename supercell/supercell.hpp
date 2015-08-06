@@ -28,14 +28,14 @@ public:
     std::vector<Eigen::Vector3d> getOrthogonalPositions(void);
     std::vector<Eigen::SMatrixXi> getSymmetryMatrices(void);
     int getSupercellIndex(int unitCellIndex, Eigen::Vector3i cell);
-protected:
-    void updateVariables(void);
-    void calcFractionalPositions(void);
+    void calcPositions(void);
     void calcSymmetryMatrices(void);
+    void checkSymmetryMatrices(void);
+protected:
+    void calcFractionalPositions(void);
+    void calcOrthogonalPositions(void);
     virtual void calcUnitCellFractionalPositions(void);
     virtual void calcSpaceGroupSymmetryMatrices(void);
-    void checkSymmetryMatrices(void);
-    void calcOrthogonalPositions(void);
     void periodicBoundaryCondition(std::vector<Eigen::Vector3d> &positions, Eigen::Vector3i cellSize);
     std::vector<Eigen::Vector3d> glideReflection(std::vector<Eigen::Vector3d> positions, Eigen::Vector3d transVector, Eigen::Vector3d reflectionPos);
     Eigen::SMatrixXi getSymmetryMatrix(std::vector<Eigen::Vector3d> arr1, std::vector<Eigen::Vector3d> arr2);

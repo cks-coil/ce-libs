@@ -26,19 +26,15 @@ Supercell::~Supercell(void){
 
 void Supercell::setCellSize(Vector3i cellSize){
     this->cellSize = cellSize;
-    updateVariables();
 }
 
 void Supercell::setAtomicPos(Vector3d atomicPos){
     this->atomicPos = atomicPos;
-    updateVariables();
 }
 
 void Supercell::setCrystalAxis(Vector3d a, Vector3d b, Vector3d c){
     crystalAxisMatrix << a,b,c;
-    updateVariables();
 }
-
 
 int Supercell::getNumPositions(void){
     return fractionalPositions.size();
@@ -90,35 +86,17 @@ int Supercell::getSupercellIndex(int unitCellIndex, Vector3i cell){
 }
 
 
-void Supercell::updateVariables(void){
+void Supercell::calcPositions(void){
     if( cellSize == Vector3i::Zero() ) return;
     if( crystalAxisMatrix == Matrix3d::Zero() ) return;
     
     calcFractionalPositions();
     calcOrthogonalPositions();
-
-    calcSymmetryMatrices();
-    checkSymmetryMatrices();
-}
-
-void Supercell::calcFractionalPositions(void){
-    unitCellFractionalPositions.clear();
-    calcUnitCellFractionalPositions();
-    periodicBoundaryCondition(unitCellFractionalPositions, Vector3i::Ones());
-
-    fractionalPositions.clear();
-    for(int a=0; a<cellSize(0); a++){
-        for(int b=0; b<cellSize(1); b++){
-            for(int c=0; c<cellSize(2); c++){
-                for(auto pos: unitCellFractionalPositions){
-                    fractionalPositions.push_back( pos + Vector3d(a,b,c) );
-                }
-            }
-        }
-    }
 }
 
 void Supercell::calcSymmetryMatrices(void){
+    if( fractionalPositions.empty() ) return;
+
     spaceGroupSymmetryMatrices.clear();
     calcSpaceGroupSymmetryMatrices();
 
@@ -129,9 +107,6 @@ void Supercell::calcSymmetryMatrices(void){
         }
     }
 }
-
-void Supercell::calcUnitCellFractionalPositions(void){}
-void Supercell::calcSpaceGroupSymmetryMatrices(void){}
 
 void Supercell::checkSymmetryMatrices(void){
     if( (int)symmetryMatrices.size() != getNumPositions() ){
@@ -154,6 +129,25 @@ void Supercell::checkSymmetryMatrices(void){
         cerr << "ERROR: Wrong Symmetriy Matrices" << endl;
         exit(1);
     }
+
+    cerr << "PASS: Symmetry Matrices Test" << endl;
+}
+
+void Supercell::calcFractionalPositions(void){
+    unitCellFractionalPositions.clear();
+    calcUnitCellFractionalPositions();
+    periodicBoundaryCondition(unitCellFractionalPositions, Vector3i::Ones());
+
+    fractionalPositions.clear();
+    for(int a=0; a<cellSize(0); a++){
+        for(int b=0; b<cellSize(1); b++){
+            for(int c=0; c<cellSize(2); c++){
+                for(auto pos: unitCellFractionalPositions){
+                    fractionalPositions.push_back( pos + Vector3d(a,b,c) );
+                }
+            }
+        }
+    }
 }
 
 void Supercell::calcOrthogonalPositions(void){
@@ -162,6 +156,9 @@ void Supercell::calcOrthogonalPositions(void){
         orthogonalPositions.push_back( crystalAxisMatrix * pos ) ;
     }
 }
+
+void Supercell::calcUnitCellFractionalPositions(void){}
+void Supercell::calcSpaceGroupSymmetryMatrices(void){}
 
 void Supercell::periodicBoundaryCondition(vector<Vector3d> &positions, Vector3i boundary){
     for(auto &pos : positions){
