@@ -30,17 +30,14 @@ void Clusters::setSupercell(Supercell *tgt){
         exit(1);
     } 
     this->tgt = tgt;
-    findUniqueClusters();
 }
 
 void Clusters::setMaxDistance(double maxDistance){
     this->maxDistance = maxDistance;
-    findUniqueClusters();
 }
 
 void Clusters::setMaxNum(int maxNum){
     this->maxNum = maxNum;
-    findUniqueClusters();
 }
 
 vector<SVectorXi> Clusters::getUniqueClusters(void){
@@ -49,7 +46,6 @@ vector<SVectorXi> Clusters::getUniqueClusters(void){
 int Clusters::getNumUniqueClusters(void){
     return uniqueClusters.size();
 }
-
 
 void Clusters::findUniqueClusters(void){
     if(tgt == nullptr || maxNum == 0 || maxDistance == 0) return;
@@ -67,6 +63,7 @@ void Clusters::findUniqueClusters(void){
         for(auto cluster : preClusters) uniqueClusters.push_back(cluster);
     }
 }
+
 
 bool Clusters::isRange(SVectorXi cluster){
     cluster.prune(0);

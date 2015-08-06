@@ -18,8 +18,8 @@ public:
     void setMaxNum(int maxNum);
     std::vector<Eigen::SVectorXi> getUniqueClusters(void);
     int getNumUniqueClusters(void);
-private:
     void findUniqueClusters(void);
+private:
     bool isRange(Eigen::SVectorXi cluster);
     bool isUnique(Eigen::SVectorXi cluster, const std::vector<Eigen::SVectorXi> &refs);
     std::vector<Eigen::SVectorXi> getNextUniqueClusters(const std::vector<Eigen::SVectorXi> &seeds);
