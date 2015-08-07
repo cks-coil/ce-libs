@@ -122,9 +122,18 @@ void Supercell::checkSymOpMatrices(void){
         }
     }
     
-    SMatrixXi zeroMatrix(getNumPositions(), getNumPositions());
-    zeroMatrix.setZero();
-    MatrixXi sum = accumulate(symOpMatrices.begin(), symOpMatrices.end(), zeroMatrix);
+    MatrixXi sum = MatrixXi::Zero(getNumPositions(), getNumPositions());
+    for(auto matrix:symOpMatrices){
+        /*
+          summation
+          eigen3's defalut MatrixXi += SMatrixXi is too slow
+         */
+        for (int k=0; k < matrix.outerSize(); ++k){
+            for (SparseMatrix<int>::InnerIterator it(matrix,k); it; ++it){
+                sum(it.row(), it.col()) += it.value();
+            }
+        }
+    }
     if(sum != MatrixXi::Ones(getNumPositions(), getNumPositions())){
         cerr << "ERROR: Wrong Symmetriy Matrices" << endl;
         exit(1);
