@@ -36,55 +36,69 @@ void Supercell::setCrystalAxis(Vector3d a, Vector3d b, Vector3d c){
     crystalAxisMatrix << a,b,c;
 }
 
-int Supercell::getNumPositions(void){
+int Supercell::getNumPositions(void) const{
     return fractionalPositions.size();
 }
 
-int Supercell::getNumUnitCellPositions(void){
+int Supercell::getNumUnitCellPositions(void) const{
     return fractionalPositions.size() / ( cellSize(0) * cellSize(1) * cellSize(2) );
 }
 
-Vector3i Supercell::getCellSize(void){
+Vector3i Supercell::getCellSize(void) const{
     return cellSize;
 }
 
-Matrix3d Supercell::getCrystalAxisMatrix(void){
+Matrix3d Supercell::getCrystalAxisMatrix(void) const{
     return crystalAxisMatrix;
 }
 
-Vector3d Supercell::getFractionalPos(int supercellIndex){
+Vector3d Supercell::getFractionalPos(int supercellIndex) const{
     return fractionalPositions[supercellIndex];
 }
-Vector3d Supercell::getFractionalPos(int unitCellIndex, Vector3i cell){
-    return getFractionalPos( getSupercellIndex(unitCellIndex, cell) );
+Vector3d Supercell::getFractionalPos(int unitCellIndex, Vector3i cellPos) const{
+    return getFractionalPos( getSupercellIndex(unitCellIndex, cellPos) );
 }
 
-Vector3d Supercell::getOrthogonalPos(int supercellIndex){
+Vector3d Supercell::getOrthogonalPos(int supercellIndex) const{
     return orthogonalPositions[supercellIndex];
 }
-Vector3d Supercell::getOrthogonalPos(int unitCellIndex, Vector3i cell){
-    return getOrthogonalPos( getSupercellIndex(unitCellIndex, cell) );
+Vector3d Supercell::getOrthogonalPos(int unitCellIndex, Vector3i cellPos) const{
+    return getOrthogonalPos( getSupercellIndex(unitCellIndex, cellPos) );
 }
 
-vector<Vector3d> Supercell::getFractionalPositions(void){
+vector<Vector3d> Supercell::getFractionalPositions(void) const{
     return fractionalPositions;
 }
-vector<Vector3d> Supercell::getOrthogonalPositions(void){
+vector<Vector3d> Supercell::getOrthogonalPositions(void) const{
     return orthogonalPositions;
 }
-vector<SMatrixXi> Supercell::getSymOpMatrices(void){
+vector<SMatrixXi> Supercell::getSymOpMatrices(void) const{
     return symOpMatrices;
 }
 
-int Supercell::getSupercellIndex(int unitCellIndex, Vector3i cell){
+int Supercell::getSupercellIndex(int unitCellIndex, Vector3i cellPos) const{
     int supercellIndex=0;
-    supercellIndex += cell(0) * cellSize(1) * cellSize(2) * getNumUnitCellPositions();
-    supercellIndex += cell(1) * cellSize(2) * getNumUnitCellPositions();
-    supercellIndex += cell(2) * getNumUnitCellPositions();
+    supercellIndex += cellPos(0) * cellSize(1) * cellSize(2) * getNumUnitCellPositions();
+    supercellIndex += cellPos(1) * cellSize(2) * getNumUnitCellPositions();
+    supercellIndex += cellPos(2) * getNumUnitCellPositions();
     supercellIndex += unitCellIndex;
     return supercellIndex;
 }
 
+int Supercell::getUnitCellIndex(int supercellIndex) const{
+    return supercellIndex % getNumUnitCellPositions();
+}
+
+Vector3i Supercell::getCellPos(int supercellIndex) const{
+    Vector3i cellPos;
+    for(int i=0;i<3;i++){
+        int tmp = getNumUnitCellPositions();
+        for(int j=i+1;j<3;j++) tmp*=cellSize(j);
+        cellPos(i) = supercellIndex / tmp;
+        supercellIndex %= tmp;
+    }
+    return cellPos;
+}
 
 void Supercell::calcPositions(void){
     if( cellSize == Vector3i::Zero() ) return;
