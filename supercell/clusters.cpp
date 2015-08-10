@@ -105,3 +105,15 @@ vector<SVectorXi> Clusters::getNextUniqueClusters(const vector<SVectorXi> &seeds
     return nextUniqueClusters;
 }
 
+
+
+
+SVectorXi getConvertedCluster(const SVectorXi cluster, const Supercell &source, const Supercell &dest){
+    SVectorXi convertedCluster(dest.getNumPositions(), dest.getNumPositions());
+    for(SVectorXi::InnerIterator it(cluster); it; ++it){
+        int unitCellIndex = source.getUnitCellIndex(it.index());
+        Vector3i cellPos = source.getCellPos(it.index());
+        convertedCluster.insert( dest.getSupercellIndex(unitCellIndex, cellPos) ) = 1;
+    }
+    return convertedCluster;
+}

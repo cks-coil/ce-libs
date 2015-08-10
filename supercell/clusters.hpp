@@ -31,4 +31,6 @@ private:
 
 inline bool operator < (const Eigen::SparseVector<int> &obj1, const  Eigen::SparseVector<int> &obj2);
 
+Eigen::SVectorXi getConvertedCluster(const Eigen::SVectorXi cluster, const Supercell &source, const Supercell &dest);
+
 #endif
