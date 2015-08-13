@@ -24,7 +24,7 @@ Clusters::~Clusters(void){
     uniqueClusters.clear();
 }
 
-void Clusters::setSupercell(Supercell *tgt){
+void Clusters::setSupercell(const Supercell *tgt){
     if(  ( tgt->getCellSize().prod() ) %2 == 0  ){
         cerr << "ERROR: CellSize of Supercell is NOT Odd ( " << tgt->getCellSize().transpose() << " )" << endl;
         exit(1);
@@ -40,10 +40,10 @@ void Clusters::setMaxNum(int maxNum){
     this->maxNum = maxNum;
 }
 
-vector<SVectorXi> Clusters::getUniqueClusters(void){
+vector<SVectorXi> Clusters::getUniqueClusters(void) const{
     return uniqueClusters;
 }
-int Clusters::getNumUniqueClusters(void){
+int Clusters::getNumUniqueClusters(void) const{
     return uniqueClusters.size();
 }
 

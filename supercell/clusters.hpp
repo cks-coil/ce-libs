@@ -13,18 +13,18 @@ class Clusters{
 public:
     Clusters(void);
     ~Clusters(void);
-    void setSupercell(Supercell *tgt);
+    void setSupercell(const Supercell *tgt);
     void setMaxDistance(double maxDistance);
     void setMaxNum(int maxNum);
-    std::vector<Eigen::SVectorXi> getUniqueClusters(void);
-    int getNumUniqueClusters(void);
+    std::vector<Eigen::SVectorXi> getUniqueClusters(void) const;
+    int getNumUniqueClusters(void) const;
     void findUniqueClusters(void);
 private:
     bool isRange(Eigen::SVectorXi cluster);
     bool isUnique(Eigen::SVectorXi cluster, const std::vector<Eigen::SVectorXi> &refs);
     std::vector<Eigen::SVectorXi> getNextUniqueClusters(const std::vector<Eigen::SVectorXi> &seeds);
     std::vector<Eigen::SVectorXi> uniqueClusters;
-    Supercell *tgt;
+    const Supercell *tgt;
     int maxNum;
     int maxDistance;
 };
