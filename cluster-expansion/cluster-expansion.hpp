@@ -9,10 +9,10 @@ public:
     ClusterExpansion(void);
     ~ClusterExpansion(void);
     void setSupercell(const Supercell *supercell);
-    void setUniqueClusters(std::vector<Eigen::SVectorXi> uniqueClusters);
+    void setEffectiveClusters(std::vector<Eigen::SVectorXi> effectiveClusters);
     void expandClusters(void);
 private:
-    std::vector<Eigen::SVectorXi> uniqueClusters;
+    std::vector<Eigen::SVectorXi> effectiveClusters;
     std::vector<std::vector<Eigen::SVectorXi>>  expandedClusters;
     const Supercell *supercell;
 };
