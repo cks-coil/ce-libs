@@ -29,7 +29,7 @@ private:
     int maxDistance;
 };
 
-inline bool operator < (const Eigen::SparseVector<int> &obj1, const  Eigen::SparseVector<int> &obj2);
+bool operator< (const Eigen::SVectorXi &obj1, const  Eigen::SVectorXi &obj2);
 
 Eigen::SVectorXi getConvertedCluster(const Eigen::SVectorXi cluster, const Supercell &source, const Supercell &dest);
 
