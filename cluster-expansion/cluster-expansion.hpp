@@ -11,6 +11,8 @@ public:
     void setSupercell(const Supercell *supercell);
     void setEffectiveClusters(std::vector<Eigen::SVectorXi> effectiveClusters);
     void expandClusters(void);
+    int getNumEffectiveClusters(void) const;
+    Eigen::VectorXi getClusterCountVector(Eigen::VectorXi configuration) const;
 private:
     std::vector<Eigen::SVectorXi> effectiveClusters;
     std::vector<std::vector<Eigen::SVectorXi>>  expandedClusters;

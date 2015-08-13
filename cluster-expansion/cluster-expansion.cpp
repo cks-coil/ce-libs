@@ -34,3 +34,19 @@ void ClusterExpansion::expandClusters(void){
         expandedClusters.push_back(clusters);
     }
 }
+
+int ClusterExpansion::getNumEffectiveClusters(void) const{
+    return effectiveClusters.size();
+}
+
+VectorXi ClusterExpansion::getClusterCountVector(VectorXi configuration) const{
+    VectorXi clusterCountVector = VectorXi::Zero(getNumEffectiveClusters());
+    configuration -= VectorXi::Ones(supercell->getNumPositions());
+    for(int i=0; i<getNumEffectiveClusters(); i++){
+        for(auto cluster: expandedClusters[i]){
+            if( (int)( - cluster.dot(configuration)) % 2 == 0 ) clusterCountVector(i) += 1;
+            else clusterCountVector(i) -= 1;
+        }
+    }
+    return clusterCountVector;
+}
