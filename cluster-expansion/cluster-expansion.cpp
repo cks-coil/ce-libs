@@ -5,7 +5,9 @@
 using namespace std;
 using namespace Eigen;
 
-ClusterExpansion::ClusterExpansion(void){}
+ClusterExpansion::ClusterExpansion(void){
+    supercell = nullptr;
+}
 
 ClusterExpansion::~ClusterExpansion(void){
     effectiveClusters.clear();
@@ -18,6 +20,10 @@ void ClusterExpansion::setSupercell(const Supercell *supercell){
 
 void ClusterExpansion::setEffectiveClusters(vector<Eigen::SVectorXi> effectiveClusters){
     this->effectiveClusters = effectiveClusters;
+}
+
+void ClusterExpansion::setEffectiveClusterInteractions(VectorXd effectiveClusterInteractions){
+    this->effectiveClusterInteractions = effectiveClusterInteractions;
 }
 
 void ClusterExpansion::expandClusters(void){
@@ -37,6 +43,10 @@ void ClusterExpansion::expandClusters(void){
 
 int ClusterExpansion::getNumEffectiveClusters(void) const{
     return effectiveClusters.size();
+}
+
+double ClusterExpansion::getEnergy(VectorXi configuration) const{
+    return effectiveClusterInteractions.transpose() * getClusterCountVector(configuration).cast<double>();
 }
 
 VectorXi ClusterExpansion::getClusterCountVector(VectorXi configuration) const{
