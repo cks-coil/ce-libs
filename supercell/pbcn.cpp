@@ -4,7 +4,9 @@
 using namespace std;
 using namespace Eigen;
 
-PbcnSupercell::PbcnSupercell(void){}
+PbcnSupercell::PbcnSupercell(void){
+    numUnitCellPositions = 8;
+}
 
 void PbcnSupercell::calcUnitCellFractionalPositions(void){
     double x,y,z;

@@ -14,6 +14,7 @@ Supercell::Supercell(void){
     cellSize = Vector3i::Zero();
     atomicPos = Vector3d::Zero();
     crystalAxisMatrix = Matrix3d::Zero();
+    numUnitCellPositions = 0;
 }
 
 Supercell::~Supercell(void){
@@ -37,11 +38,12 @@ void Supercell::setCrystalAxis(Vector3d a, Vector3d b, Vector3d c){
 }
 
 int Supercell::getNumPositions(void) const{
-    return fractionalPositions.size();
+    return getNumUnitCellPositions() * cellSize.prod();
 }
 
 int Supercell::getNumUnitCellPositions(void) const{
-    return fractionalPositions.size() / ( cellSize(0) * cellSize(1) * cellSize(2) );
+    if( numUnitCellPositions ) return numUnitCellPositions;
+    else return fractionalPositions.size() / cellSize.prod();
 }
 
 Vector3i Supercell::getCellSize(void) const{

@@ -34,6 +34,7 @@ public:
     void calcSymOpMatrices(void);
     void checkSymOpMatrices(void);
 protected:
+    int numUnitCellPositions;
     void calcFractionalPositions(void);
     void calcOrthogonalPositions(void);
     virtual void calcUnitCellFractionalPositions(void);
