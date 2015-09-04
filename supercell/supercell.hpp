@@ -4,10 +4,7 @@
 #include <vector>
 #include <Eigen/Core>
 #include <Eigen/Sparse>
-
-namespace Eigen{
-    typedef SparseMatrix<int> SMatrixXi;
-}
+#include "eigen-extension.hpp"
 
 class Supercell{
 public:
@@ -53,7 +50,5 @@ protected:
     std::vector<Eigen::Vector3d> unitCellFractionalPositions;
     std::vector<Eigen::SMatrixXi> spaceGroupSymOpMatrices;
 };
-
-bool operator == (const Eigen::SMatrixXi &obj1, const Eigen::SMatrixXi &obj2);
 
 #endif

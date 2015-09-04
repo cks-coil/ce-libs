@@ -1,18 +1,10 @@
-#include "clusters.hpp"
 #include <iostream>
 #include <algorithm>
 #include <set>
+#include "clusters.hpp"
 
 using namespace std;
 using namespace Eigen;
-
-bool operator< (const SVectorXi &obj1, const SVectorXi &obj2){
-    SVectorXi diff = obj1- obj2;
-    diff.prune(0);
-    if ( diff.nonZeros()==0 ) return false;
-    SVectorXi::InnerIterator it(diff);
-    return (it.value() < 0);
-}
 
 Clusters::Clusters(void){
     tgt = nullptr;
@@ -109,7 +101,7 @@ vector<SVectorXi> Clusters::getNextUniqueClusters(const vector<SVectorXi> &seeds
 
 
 SVectorXi getConvertedCluster(const SVectorXi cluster, const Supercell &source, const Supercell &dest){
-    SVectorXi convertedCluster(dest.getNumPositions(), dest.getNumPositions());
+    SVectorXi convertedCluster(dest.getNumPositions());
     for(SVectorXi::InnerIterator it(cluster); it; ++it){
         int unitCellIndex = source.getUnitCellIndex(it.index());
         Vector3i cellPos = source.getCellPos(it.index());

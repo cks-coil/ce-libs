@@ -3,11 +3,8 @@
 
 #include <Eigen/Core>
 #include <Eigen/Sparse>
+#include "eigen-extension.hpp"
 #include "supercell.hpp"
-
-namespace Eigen{
-    typedef SparseVector<int> SVectorXi;
-}
 
 class Clusters{
 public:
@@ -28,8 +25,6 @@ private:
     int maxNum;
     int maxDistance;
 };
-
-bool operator< (const Eigen::SVectorXi &obj1, const  Eigen::SVectorXi &obj2);
 
 Eigen::SVectorXi getConvertedCluster(const Eigen::SVectorXi cluster, const Supercell &source, const Supercell &dest);
 

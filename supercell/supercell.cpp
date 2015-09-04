@@ -257,8 +257,3 @@ vector<SMatrixXi> Supercell::getSlideMatrices(void){
     }
     return slideMatrices;
 }
-
-bool operator == (const SMatrixXi &obj1, const SMatrixXi &obj2){
-    Eigen::SMatrixXi tmpMatrix = obj1- obj2;
-    return tmpMatrix.norm() == 0;
-}
