@@ -25,11 +25,15 @@ public:
 private:
     std::mt19937 *engine;
     void initializeParents(void);
-    void evaluate(void);
-    void selecte(void);
-    void mutate(void);
+    void sortParents(void);
+    void selectElite(void);
+    void generateChildren(void);
+    void mutateChildren(void);
+    void evaluateChildren(void);
+    void selectParents(void);
+    void insertElite(void);
     int generation;
-    int numTotalGene;;
+    int numTotalGene;
     int numEffectiveGene;
     int numParents;
     int numChildren;
@@ -40,6 +44,8 @@ private:
     double (*evalFunc)(Eigen::SVectorXi chromosome);
     std::vector< std::pair<Eigen::SVectorXi, double> > parents;
     std::vector< std::pair<Eigen::SVectorXi, double> > children;
+    std::vector< std::pair<Eigen::SVectorXi, double> > elites;
+    std::vector< std::pair<Eigen::SVectorXi, double> > changes;
 };
 
 #endif
