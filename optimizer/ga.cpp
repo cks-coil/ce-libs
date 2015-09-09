@@ -36,14 +36,13 @@ void GA::setGenerationLimit(int generationLimit){ this->generationLimit = genera
 void GA::setEvalLimit(double evalLimit){ this->evalLimit = evalLimit; }
 void GA::setMutationP(double mutationP){ this->mutationP = mutationP; }
 void GA::setEvalFunc(double (*evalFunc)(Eigen::SVectorXi chromosome)){ this->evalFunc = evalFunc; }
-void GA::setFixedGene(SVectorXi fixedGene){ this->fixedGene = fixedGene; }
 
 void GA::run(void){}
 
 void GA::getResults(int *generation, double *eval, SVectorXi *chromosome) const{
     *generation = this->generation;
     *eval = parents[0].second;
-    *gene = getDecompressedChromosome(parents[0].first);
+    *gene = parents[0].first;
 }
 
 

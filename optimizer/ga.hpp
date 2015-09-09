@@ -20,7 +20,6 @@ public:
     void setEvalLimit(double evalLimit);
     void setMutationP(double mutationP);
     void setEvalFunc(double (*evalFunc)(Eigen::SVectorXi chromosome));
-    void setFixedGene(Eigen::SVectorXi fixedGene);
     void run(void);
     void getResults(int *generation, double *eval, Eigen::SVectorXi *chromosome) const;
 private:
@@ -29,7 +28,6 @@ private:
     void evaluate(void);
     void selecte(void);
     void mutate(void);
-    Eigen::SVectorXi getDecompressedChromosome(Eigen:: SVectorXi chromosome) const;
     int generation;
     int numTotalGene;;
     int numEffectiveGene;
@@ -40,7 +38,6 @@ private:
     double evalLimit;
     double mutationP;
     double (*evalFunc)(Eigen::SVectorXi chromosome);
-    Eigen::SVectorXi fixedGene;
     std::vector< std::pair<Eigen::SVectorXi, double> > parents;
     std::vector< std::pair<Eigen::SVectorXi, double> > children;
 };
