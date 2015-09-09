@@ -1,6 +1,7 @@
 #include <set>
 #include <stdlib.h>
 #include "ga.hpp"
+#include <iostream>
 
 using namespace std;
 using namespace Eigen;
@@ -44,8 +45,8 @@ void GA::run(void){
     changes.clear();
     initializeParents();
     sortParents();
-    changes.push_back(parents[0]);
-    while(generation < generationLimit && parents[0].second < evalLimit ){
+    changes.push_back(parents.front());
+    while(generation < generationLimit && parents.front().second < evalLimit ){
         selectElite();
         generateChildren();
         mutateChildren();
@@ -53,15 +54,15 @@ void GA::run(void){
         selectParents();
         insertElite();
         sortParents();
-        changes.push_back(parents[0]);
+        changes.push_back(parents.front());
         generation++;
     }
 }
 
 void GA::getResults(int *generation, double *eval, SVectorXi *chromosome) const{
     *generation = this->generation;
-    *eval = parents[0].second;
-    *chromosome = parents[0].first;
+    *eval = parents.front().second;
+    *chromosome = parents.front().first;
 }
 
 
@@ -81,8 +82,8 @@ void GA::initializeParents(void){
 }
 
 void GA::sortParents(void){
-    auto less = [](const pair<SVectorXi,double> &obj1, const pair<SVectorXi,double> &obj2){ return obj1.second < obj2.second; };
-    sort(parents.begin(),parents.end(),less);
+    auto greater = [](const pair<SVectorXi,double> &obj1, const pair<SVectorXi,double> &obj2){ return obj1.second > obj2.second; };
+    sort(parents.begin(),parents.end(),greater);
 }
 
 void GA::selectElite(void){
@@ -95,12 +96,12 @@ void GA::selectElite(void){
 // (modified) uniform crossover
 void GA::generateChildren(void){
     children.clear();
-    uniform_int_distribution<int> rnd(0,numChildren - numElites-1);
+    uniform_int_distribution<int> parentRnd(0,numParents-1);
 
     while(children.size() < numChildren - numElites){
         SVectorXi parent1, parent2;
-        parent1 = parents[rnd(*engine)].first;
-        while( (parent2=parents[rnd(*engine)].first) == parent1 );
+        parent1 = parents[parentRnd(*engine)].first;
+        while( (parent2=parents[parentRnd(*engine)].first) == parent1 );
 
         SVectorXi child1, child2;
         SVectorXi sum, common, unique;
@@ -111,13 +112,13 @@ void GA::generateChildren(void){
         unique.prune(0);
         child1 = common;
 
-        set<int> enableIndexSet;
-        uniform_int_distribution<int> rnd(0,unique.nonZeros()/2);
-        while(enableIndexSet.size() < unique.nonZeros()/2){
-            int enableIndex = rnd(*engine);
-            if( unique.coeff( enableIndex ) == 1 ) enableIndexSet.insert( enableIndex );
+        set<int> enableGeneSet;
+        uniform_int_distribution<int> geneRnd(0,numTotalGene-1);
+        while(enableGeneSet.size() < unique.nonZeros()/2){
+            int enableGene = geneRnd(*engine);
+            if( unique.coeff( enableGene ) == 1 ) enableGeneSet.insert( enableGene );
         }
-        for(auto enableIndex: enableIndexSet) child1.coeffRef(enableIndex) = 1;
+        for(auto enableGene: enableGeneSet) child1.coeffRef(enableGene) = 1;
         child2 = sum - child1;
         child2.prune(0);
         
@@ -129,15 +130,15 @@ void GA::generateChildren(void){
 // (modified) swap
 void GA::mutateChildren(void){
     uniform_real_distribution<double> judgeRnd(0,1);
-    uniform_int_distribution<int> selectRnd(0,numChildren - numElites-1);
+    uniform_int_distribution<int> selectRnd(0,numTotalGene-1);
 
     for(auto &child: children){
-        if(judgeRnd(*engine) > mutationP ) continue;
-        int disableIndex, enableIndex;
-        while( child.first.coeff( disableIndex=selectRnd(*engine) ) != 1 );
-        while( child.first.coeff( enableIndex=selectRnd(*engine) ) != 0 );
-        child.first.coeffRef(disableIndex) = 0;
-        child.first.coeffRef(enableIndex) = 1;
+        if(judgeRnd(*engine) < mutationP ) continue;
+        int disableGene, enableGene;
+        while( child.first.coeff( disableGene=selectRnd(*engine) ) != 1 );
+        while( child.first.coeff( enableGene=selectRnd(*engine) ) != 0 );
+        child.first.coeffRef(disableGene) = 0;
+        child.first.coeffRef(enableGene) = 1;
     }
 }
 
