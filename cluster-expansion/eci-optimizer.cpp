@@ -1,6 +1,7 @@
 #include "eci-optimizer.hpp"
 #include <Eigen/Dense>
 #include <iostream>
+#include <limits>
 
 using namespace std;
 using namespace Eigen;
@@ -39,8 +40,8 @@ double ECIOptimizer::getLOOCVScore(void){
     MatrixXd allX(samples.size(), tgt->getNumEffectiveClusters());
     for(int i=0; i<samples.size(); i++) allX.row(i) = samples[i].first.cast<double>();
     MatrixXd tmp = (allX.transpose() * allX).inverse();
-
     double score=0;
+
     for(auto testSample: samples){
         VectorXd testX = testSample.first.cast<double>();
         double testY = testSample.second;
@@ -57,6 +58,7 @@ double ECIOptimizer::getLOOCVScore(void){
         ECI = ( tmp - (tmp * testX * testX.transpose() * tmp ) / ( 1 + testX.transpose() * tmp * testX ) )
             * trainingX.transpose() * trainingY;
         score += pow( (ECI.transpose() * testX - testY), 2);
+        if( std::isnan(score) ){ return -1.0;}
     }
     return score / (double)samples.size();
 }
