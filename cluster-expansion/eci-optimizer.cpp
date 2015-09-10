@@ -17,7 +17,7 @@ void ECIOptimizer::setTarget(ClusterExpansion *target){
     tgt = target;
 }
 
-void ECIOptimizer::setSample(SVectorXi configuration, double energy){
+void ECIOptimizer::setSample(VectorXi configuration, double energy){
     auto sample = make_pair(tgt->getClusterCountVector(configuration), energy);
     samples.push_back(sample);
 }

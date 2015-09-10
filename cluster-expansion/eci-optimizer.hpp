@@ -9,7 +9,7 @@ public:
     ECIOptimizer(void);
     ~ECIOptimizer(void);
     void setTarget(ClusterExpansion *target);
-    void setSample(Eigen::SVectorXi configuration, double energy);
+    void setSample(Eigen::VectorXi configuration, double energy);
     void optimizeECI(void);
     double getLOOCVScore(void);
 private:
