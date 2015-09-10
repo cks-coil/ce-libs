@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <random>
+#include <functional>
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include "eigen-extension.hpp"
@@ -19,7 +20,7 @@ public:
     void setGenerationLimit(int generationLimit);
     void setEvalLimit(double evalLimit);
     void setMutationP(double mutationP);
-    void setEvalFunc(double (*evalFunc)(Eigen::SVectorXi chromosome));
+    void setEvalFunc(std::function<double(Eigen::SVectorXi)> evalFunc);
     void run(void);
     void getResults(int *generation, double *eval, Eigen::SVectorXi *chromosome) const;
 private:
@@ -41,7 +42,7 @@ private:
     int generationLimit;
     double evalLimit;
     double mutationP;
-    double (*evalFunc)(Eigen::SVectorXi chromosome);
+    std::function<double(Eigen::SVectorXi)> evalFunc;
     std::vector< std::pair<Eigen::SVectorXi, double> > parents;
     std::vector< std::pair<Eigen::SVectorXi, double> > children;
     std::vector< std::pair<Eigen::SVectorXi, double> > elites;

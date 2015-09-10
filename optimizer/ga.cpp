@@ -38,7 +38,7 @@ void GA::setNumElites(int numElites){ this->numElites = numElites; }
 void GA::setGenerationLimit(int generationLimit){ this->generationLimit = generationLimit; }
 void GA::setEvalLimit(double evalLimit){ this->evalLimit = evalLimit; }
 void GA::setMutationP(double mutationP){ this->mutationP = mutationP; }
-void GA::setEvalFunc(double (*evalFunc)(Eigen::SVectorXi chromosome)){ this->evalFunc = evalFunc; }
+void GA::setEvalFunc(std::function<double(Eigen::SVectorXi)> evalFunc){ this->evalFunc = evalFunc; }
 
 void GA::run(void){
     generation = 0;
