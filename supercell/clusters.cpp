@@ -17,10 +17,6 @@ Clusters::~Clusters(void){
 }
 
 void Clusters::setSupercell(const Supercell *tgt){
-    if(  ( tgt->getCellSize().prod() ) %2 == 0  ){
-        cerr << "ERROR: CellSize of Supercell is NOT Odd ( " << tgt->getCellSize().transpose() << " )" << endl;
-        exit(1);
-    } 
     this->tgt = tgt;
 }
 
