@@ -257,3 +257,29 @@ vector<SMatrixXi> Supercell::getSlideMatrices(void){
     }
     return slideMatrices;
 }
+
+
+VectorXi getConvertedConfiguration(const VectorXi configuration, const Supercell &source, const Supercell &dest){
+    VectorXi convertedConfiguration(dest.getNumPositions());
+    Vector3i scale = (dest.getCellSize().array() / source.getCellSize().array() ).matrix();
+    if( (source.getCellSize().array() * scale.array()).matrix() != dest.getCellSize()  ){
+        cerr << "Error: Can NOT Convert Configuration" << endl;
+        exit(1);
+    }
+
+    for(int i=0; i<scale(0); i++){
+        for(int j=0; j<scale(1); j++){
+            for(int k=0; k<scale(2); k++){
+                Vector3i cellSlide;
+                cellSlide = (Vector3i(i,j,k).array() * source.getCellSize().array()).matrix();
+                for(int row=0; row<source.getNumPositions(); row++){
+                    int unitCellIndex = source.getUnitCellIndex(row);
+                    Vector3i cellPos = source.getCellPos(row) + cellSlide;
+                    convertedConfiguration( dest.getSupercellIndex(unitCellIndex, cellPos ) ) = configuration(row);
+                }
+            }
+        }
+    }
+    return convertedConfiguration;
+}
+

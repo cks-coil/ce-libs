@@ -22,6 +22,4 @@ private:
     std::vector<std::vector<Eigen::SVectorXi>>  expandedClusters;
 };
 
-Eigen::VectorXi getConvertedConfiguration(const Eigen::VectorXi configuration, const Supercell &source, const Supercell &dest);
-
 #endif

@@ -51,4 +51,6 @@ protected:
     std::vector<Eigen::SMatrixXi> spaceGroupSymOpMatrices;
 };
 
+Eigen::VectorXi getConvertedConfiguration(const Eigen::VectorXi configuration, const Supercell &source, const Supercell &dest);
+
 #endif
