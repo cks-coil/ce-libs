@@ -46,6 +46,7 @@ void GA::run(void){
     initializeParents();
     sortParents();
     changes.push_back(parents.front());
+    cout << generation << " "<< parents.front().second << endl;
     while(generation < generationLimit && parents.front().second < evalLimit ){
         generation++;
         selectElite();
@@ -56,6 +57,7 @@ void GA::run(void){
         insertElite();
         sortParents();
         changes.push_back(parents.front());
+        cout << generation << " "<< parents.front().second << endl;
     }
 }
 
