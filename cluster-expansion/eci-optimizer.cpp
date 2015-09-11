@@ -1,5 +1,6 @@
 #include "eci-optimizer.hpp"
 #include <Eigen/Dense>
+#include <Eigen/SVD>
 #include <iostream>
 #include <limits>
 
@@ -32,14 +33,11 @@ void ECIOptimizer::optimizeECI(void){
         X.row(i) = samples[i].first.cast<double>();
         Y(i) = samples[i].second;
     }
-   ECI = (X.transpose()*X).inverse() * X.transpose() * Y;
-   tgt->setEffectiveClusterInteractions(ECI);
+    ECI = X.jacobiSvd(ComputeThinU | ComputeThinV).solve(Y);
+    tgt->setEffectiveClusterInteractions(ECI);
 }
 
 double ECIOptimizer::getLOOCVScore(void){
-    MatrixXd allX(samples.size(), tgt->getNumEffectiveClusters());
-    for(int i=0; i<samples.size(); i++) allX.row(i) = samples[i].first.cast<double>();
-    MatrixXd tmp = (allX.transpose() * allX).inverse();
     double score=0;
 
     for(auto testSample: samples){
@@ -55,8 +53,7 @@ double ECIOptimizer::getLOOCVScore(void){
             trainingY(i) = trainingSample.second;
             i++;
         }
-        ECI = ( tmp - (tmp * testX * testX.transpose() * tmp ) / ( 1 + testX.transpose() * tmp * testX ) )
-            * trainingX.transpose() * trainingY;
+        ECI = trainingX.jacobiSvd(ComputeThinU | ComputeThinV).solve(trainingY);
         score += pow( (ECI.transpose() * testX - testY), 2);
         if( std::isnan(score) ){ return -1.0;}
     }
