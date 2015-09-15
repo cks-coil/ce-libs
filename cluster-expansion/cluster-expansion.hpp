@@ -15,6 +15,7 @@ public:
     int getNumEffectiveClusters(void) const;
     double getEnergy(Eigen::VectorXi configuration) const;
     Eigen::VectorXi getClusterCountVector(Eigen::VectorXi configuration) const;
+    const Supercell *getSupercell(void) const;
 private:
     const Supercell *supercell;
     std::vector<Eigen::SVectorXi> effectiveClusters;

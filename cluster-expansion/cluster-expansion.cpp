@@ -60,4 +60,7 @@ VectorXi ClusterExpansion::getClusterCountVector(VectorXi configuration) const{
     }
     return clusterCountVector;
 }
+const Supercell *ClusterExpansion::getSupercell(void) const{
+    return supercell;
+}
 
