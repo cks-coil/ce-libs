@@ -1,8 +1,9 @@
-#include "supercell.hpp"
+#include <Eigen/Dense>
 #include <algorithm>
 #include <math.h>
 #include <iostream>
 #include <numeric>
+#include "supercell.hpp"
 
 #define ALLOWABLE_ERROR pow(10.0, -7)
 
@@ -100,6 +101,10 @@ Vector3i Supercell::getCellPos(int supercellIndex) const{
         supercellIndex %= tmp;
     }
     return cellPos;
+}
+
+double Supercell::getVolume(void) const{
+    return crystalAxisMatrix.col(0).dot( crystalAxisMatrix.col(1).cross(crystalAxisMatrix.col(2)) ) * cellSize.prod();;
 }
 
 void Supercell::calcPositions(void){

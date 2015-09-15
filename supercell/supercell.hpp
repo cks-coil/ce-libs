@@ -27,6 +27,7 @@ public:
     int getSupercellIndex(int unitCellIndex, Eigen::Vector3i cellPos) const;
     int getUnitCellIndex(int supercellIndex) const;
     Eigen::Vector3i getCellPos(int supercellIndex) const;
+    double getVolume(void) const;
     void calcPositions(void);
     void calcSymOpMatrices(void);
     void checkSymOpMatrices(void);
