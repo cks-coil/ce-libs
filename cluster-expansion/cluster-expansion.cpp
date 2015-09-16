@@ -33,7 +33,9 @@ void ClusterExpansion::expandClusters(void){
         auto equal = [](const SVectorXi &obj1, const SVectorXi &obj2){return obj1==obj2;};
         vector<SVectorXi> clusters;
         for(auto symOpMatrix : supercell->getSymOpMatrices()){
-            clusters.push_back( (symOpMatrix * effectiveCluster).pruned(0) );
+            SVectorXi configuration = symOpMatrix * effectiveCluster;
+            configuration.prune(0);
+            clusters.push_back( configuration );
         }
         sort(clusters.begin(),clusters.end(), less);
         clusters.erase(unique(clusters.begin(),clusters.end(), equal),clusters.end());
