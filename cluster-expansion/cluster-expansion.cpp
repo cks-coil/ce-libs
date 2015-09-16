@@ -60,7 +60,27 @@ VectorXi ClusterExpansion::getClusterCountVector(VectorXi configuration) const{
     }
     return clusterCountVector;
 }
+
 const Supercell *ClusterExpansion::getSupercell(void) const{
     return supercell;
 }
 
+void ClusterExpansion::output(ostream &out) const{
+    for(int i=0; i<getNumEffectiveClusters(); i++){
+        SVectorXi cluster = effectiveClusters[i];
+        double eci = effectiveClusterInteractions.coeff(i);
+        out << cluster.nonZeros() << " " << eci;
+        for(SVectorXi::InnerIterator it(cluster); it; ++it){
+            int supercellIndex = it.index();
+            int unitcellIndex = supercell->getUnitCellIndex(supercellIndex);
+            Vector3i cellPos = supercell->getCellPos(supercellIndex);
+            out << " " << cellPos(0) << "," << cellPos(1) << "," << cellPos(2) << "-" << unitcellIndex;
+        }
+        out << endl;
+    }
+}
+
+ostream &operator<<(std::ostream &out, const ClusterExpansion &tgt){
+    tgt.output(out);
+    return out;
+}
