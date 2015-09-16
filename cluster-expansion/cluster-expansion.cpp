@@ -33,7 +33,7 @@ void ClusterExpansion::expandClusters(void){
         auto equal = [](const SVectorXi &obj1, const SVectorXi &obj2){return obj1==obj2;};
         vector<SVectorXi> clusters;
         for(auto symOpMatrix : supercell->getSymOpMatrices()){
-            clusters.push_back( symOpMatrix * effectiveCluster );
+            clusters.push_back( (symOpMatrix * effectiveCluster).pruned(0) );
         }
         sort(clusters.begin(),clusters.end(), less);
         clusters.erase(unique(clusters.begin(),clusters.end(), equal),clusters.end());
@@ -54,6 +54,12 @@ VectorXi ClusterExpansion::getClusterCountVector(VectorXi configuration) const{
     configuration -= VectorXi::Ones(supercell->getNumPositions());
     for(int i=0; i<getNumEffectiveClusters(); i++){
         for(auto cluster: expandedClusters[i]){
+            // for empty cluster
+            if(cluster.nonZeros()==0){
+                clusterCountVector(i) = supercell->getNumPositions();
+                break;
+            }
+
             if( (int)( - cluster.dot(configuration)) % 2 == 0 ) clusterCountVector(i) += 1;
             else clusterCountVector(i) -= 1;
         }
