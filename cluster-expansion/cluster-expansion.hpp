@@ -17,6 +17,7 @@ public:
     double getEnergy(Eigen::VectorXi configuration) const;
     Eigen::VectorXi getClusterCountVector(Eigen::VectorXi configuration) const;
     const Supercell *getSupercell(void) const;
+    Eigen::VectorXd getEffectiveClusterInteractions(void) const;
     void output(std::ostream &out) const;
 private:
     const Supercell *supercell;

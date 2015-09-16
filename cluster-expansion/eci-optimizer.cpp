@@ -59,3 +59,16 @@ double ECIOptimizer::getLOOCVScore(void){
     }
     return score / (double)samples.size();
 }
+
+void ECIOptimizer::output(ostream &out) const{
+    for(auto sample:samples){
+        double energy = tgt->getEffectiveClusterInteractions().transpose() * sample.first.cast<double>();
+        double diff = energy - sample.second;
+        out << sample.second << " " << energy << " " << diff << endl;
+    }
+}
+
+ostream &operator<<(std::ostream &out, const ECIOptimizer &tgt){
+    tgt.output(out);
+    return out;
+}

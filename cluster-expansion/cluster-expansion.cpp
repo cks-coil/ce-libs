@@ -73,6 +73,10 @@ const Supercell *ClusterExpansion::getSupercell(void) const{
     return supercell;
 }
 
+VectorXd ClusterExpansion::getEffectiveClusterInteractions(void) const{
+    return effectiveClusterInteractions;
+}
+
 void ClusterExpansion::output(ostream &out) const{
     for(int i=0; i<getNumEffectiveClusters(); i++){
         SVectorXi cluster = effectiveClusters[i];
