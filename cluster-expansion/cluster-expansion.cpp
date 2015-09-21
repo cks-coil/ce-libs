@@ -12,6 +12,7 @@ ClusterExpansion::ClusterExpansion(void){
 ClusterExpansion::~ClusterExpansion(void){
     effectiveClusters.clear();
     expandedClusters.clear();
+    mappedClusters.clear();
 }
 
 void ClusterExpansion::setSupercell(const Supercell *supercell){
@@ -43,12 +44,40 @@ void ClusterExpansion::expandClusters(void){
     }
 }
 
+void ClusterExpansion::mapClusters(void){
+    mappedClusters.clear();
+    mappedClusters.resize(supercell->getNumPositions());
+    for(int clusterIndex=0; clusterIndex<getNumEffectiveClusters(); clusterIndex++){
+        for(auto cluster: expandedClusters[clusterIndex]){
+            for(SVectorXi::InnerIterator it(cluster); it; ++it){
+                mappedClusters[it.index()].push_back(make_pair(clusterIndex, cluster));
+            }
+        }
+    }
+}
+
 int ClusterExpansion::getNumEffectiveClusters(void) const{
     return effectiveClusters.size();
 }
 
 double ClusterExpansion::getEnergy(VectorXi configuration) const{
     return effectiveClusterInteractions.transpose() * getClusterCountVector(configuration).cast<double>();
+}
+
+double ClusterExpansion::getEnergyInitial(VectorXi configuration){
+    VectorXi clusterCountVector = getClusterCountVector(configuration);
+    double energy = effectiveClusterInteractions.transpose() * clusterCountVector.cast<double>();
+    oldConfiguration = configuration;
+    oldClusterCountVector = clusterCountVector;
+    return energy;
+}
+
+double ClusterExpansion::getEnergyDifferential(VectorXi configuration){
+    VectorXi clusterCountVector = getClusterCountVectorDifferential(configuration);
+    double energy = effectiveClusterInteractions.transpose() * clusterCountVector.cast<double>();
+    oldConfiguration = configuration;
+    oldClusterCountVector = clusterCountVector;
+    return energy;
 }
 
 VectorXi ClusterExpansion::getClusterCountVector(VectorXi configuration) const{
@@ -90,6 +119,28 @@ void ClusterExpansion::output(ostream &out) const{
         }
         out << endl;
     }
+}
+
+VectorXi ClusterExpansion::getClusterCountVectorDifferential(VectorXi configuration){
+    VectorXi diffConf = configuration - oldConfiguration;
+    VectorXi clusterCountVectorDiff = VectorXi::Zero(getNumEffectiveClusters());
+    VectorXi reverseConf = configuration - VectorXi::Ones(supercell->getNumPositions());
+
+    for(int posIndex=0; posIndex<supercell->getNumPositions(); posIndex++){
+        if( diffConf(posIndex)==0 ) continue;
+        for( auto cluster: mappedClusters[posIndex] ){
+            if( cluster.second.dot(diffConf)%2==0 ) continue;
+            
+            int firstIndex;
+            SVectorXi::InnerIterator it(cluster.second);
+            while( diffConf[firstIndex=it.index()] == 0 ) ++it;
+            if(firstIndex != posIndex) continue;
+
+            if( (int)( - cluster.second.dot(reverseConf)) % 2 == 0 ) clusterCountVectorDiff(cluster.first) += 1;
+            else clusterCountVectorDiff(cluster.first) -= 1;
+        }
+    }
+    return clusterCountVectorDiff*2 + oldClusterCountVector;
 }
 
 ostream &operator<<(std::ostream &out, const ClusterExpansion &tgt){
