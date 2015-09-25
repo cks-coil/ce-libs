@@ -141,6 +141,7 @@ void GA::mutateChildren(void){
         while( child.first.coeff( enableGene=selectRnd(*engine) ) != 0 );
         child.first.coeffRef(disableGene) = 0;
         child.first.coeffRef(enableGene) = 1;
+        child.first.prune(0);
     }
 }
 
