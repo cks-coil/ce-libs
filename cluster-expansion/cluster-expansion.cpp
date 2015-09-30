@@ -110,14 +110,14 @@ void ClusterExpansion::output(ostream &out) const{
     for(int i=0; i<getNumEffectiveClusters(); i++){
         SVectorXi cluster = effectiveClusters[i];
         double eci = effectiveClusterInteractions.coeff(i);
-        out << cluster.nonZeros() << " " << eci;
+        out << cluster.nonZeros();
         for(SVectorXi::InnerIterator it(cluster); it; ++it){
             int supercellIndex = it.index();
             int unitcellIndex = supercell->getUnitCellIndex(supercellIndex);
             Vector3i cellPos = supercell->getCellPos(supercellIndex);
             out << " " << cellPos(0) << "," << cellPos(1) << "," << cellPos(2) << "-" << unitcellIndex;
         }
-        out << endl;
+        out << " " << eci << endl;
     }
 }
 
