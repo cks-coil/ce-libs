@@ -3,19 +3,19 @@
 
 #include <string>
 #include <vector>
+#include "parser.hpp"
 #include "supercell.hpp"
 #include "eigen-extension.hpp"
 
-class SampleParser{
+class SampleParser : public Parser{
 public:
     SampleParser(void);
-    void setFileName(std::string fileName);
     void setTargetSupercell(const Supercell *targetSupercell);
     void setParseSupercell(Supercell *parseSupercell);
-    void parse(void);
     std::vector< std::pair<Eigen::VectorXi, double> > getSamples(void);
 private:
-    std::string fileName;
+    void parseLine(std::vector<std::string> strs);
+    void resetResults(void);
     const Supercell *targetSupercell;
     Supercell *parseSupercell;
     std::vector< std::pair<Eigen::VectorXi, double> > samples;

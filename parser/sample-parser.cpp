@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <exception>
 #include <boost/algorithm/string.hpp>
 #include "sample-parser.hpp"
 
@@ -7,52 +8,45 @@ using namespace std;
 using namespace Eigen;
 
 SampleParser::SampleParser(void){
-    fileName = "";
     targetSupercell = nullptr;
     parseSupercell = nullptr;
 }
 
-void SampleParser::setFileName(string fileName){ this->fileName = fileName; }
 void SampleParser::setTargetSupercell(const Supercell *targetSupercell){ this->targetSupercell = targetSupercell; }
 void SampleParser::setParseSupercell(Supercell *parseSupercell){ this->parseSupercell = parseSupercell; }
+vector< pair<VectorXi, double> > SampleParser::getSamples(void){ return samples; }
 
-void SampleParser::parse(void){
-    ifstream ifs(fileName.c_str());
-    string buf;
-    vector <string> v;
 
-    while( getline(ifs,buf) ){
-        boost::algorithm::split(v, buf, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
-        parseSupercell->setCellSize( Vector3i(1,1,1) );
-        VectorXi configuration(parseSupercell->getNumUnitCellPositions());
+void SampleParser::parseLine(vector<string> strs){
+    Vector3i cellSize = parseCellPos(strs.front());
+    if(strs.size() != (cellSize.prod()+2) ) throw runtime_error("SampleParser::parseLine");
+    parseSupercell->setCellSize( cellSize );
 
-        for(int i=0; i<(int)v.front().size(); i++){
-            switch(v.front()[i]){
-            case '0':
-                configuration(i) = 0;
-                break;
-            case '1':
-                configuration(i) = 1;
-                break;
-            default:
-                cerr << "ERROR: Can NOT Parse Sample: " <<  v.front() << endl;
-                exit(1);
-            }
-        }
-        double energy;
-        char *endptr;
-        energy = strtod(v.back().c_str(), &endptr);
-        if( (errno !=0) || (*endptr != '\0') ){ // 変換失敗
-            cerr << "ERROR: Can NOT Parse Sample: " <<  v.back() << endl;
-            exit(1);
-        }
+    double energy = stod(strs.back());
+    VectorXi configuration(parseSupercell->getNumPositions());
+
+    for(int i=1; i<(cellSize.prod()+1); i++){
+        VectorXi unitCellConf;
+        Vector3i cellPos;
+        vector<string> v;
+        boost::algorithm::split(v, strs[i], boost::algorithm::is_any_of("-"), boost::algorithm::token_compress_on);
+        if(v.size() != 2) throw runtime_error("SampleParser::pareLine");
         
-        VectorXi convertedConfiguration = getConvertedConfiguration(configuration, *parseSupercell, *targetSupercell);
-        double convertedEnergy = energy * targetSupercell->getCellSize().prod() / parseSupercell->getCellSize().prod();
-        samples.push_back( make_pair(convertedConfiguration, convertedEnergy) );
+        cellPos = parseCellPos(v[0]);
+        unitCellConf = parseUnitCellConf(v[1], parseSupercell->getNumUnitCellPositions());
+        for(int unitCellIndex=0; unitCellIndex<parseSupercell->getNumUnitCellPositions(); unitCellIndex++){
+            int supercellIndex = parseSupercell->getSupercellIndex(unitCellIndex, cellPos);
+            configuration(supercellIndex) = unitCellConf(unitCellIndex);
+        }
     }
+
+    VectorXi convertedConfiguration = getConvertedConfiguration(configuration, *parseSupercell, *targetSupercell);
+    double convertedEnergy = energy * targetSupercell->getCellSize().prod() / parseSupercell->getCellSize().prod();
+    samples.push_back( make_pair(convertedConfiguration, convertedEnergy) );
 }
 
-vector< pair<VectorXi, double> > SampleParser::getSamples(void){
-    return samples;
+
+
+void SampleParser::resetResults(void){
+    samples.clear();
 }
