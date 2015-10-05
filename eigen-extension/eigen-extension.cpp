@@ -8,9 +8,12 @@ bool operator == (const SMatrixXi &obj1, const SMatrixXi &obj2){
 }
 
 bool operator< (const SVectorXi &obj1, const SVectorXi &obj2){
-    SVectorXi diff = obj1- obj2;
-    diff.prune(0);
-    if ( diff.nonZeros()==0 ) return false;
-    SVectorXi::InnerIterator it(diff);
-    return (it.value() < 0);
+    SVectorXi::InnerIterator it1(obj1), it2(obj2);
+    while(it1 && it2){
+        if(it1.index() != it2.index()) return (it1.index() > it2.index());
+        if(it1.value() != it2.value()) return (it1.value() < it2.value());
+        ++it1;
+        ++it2;
+    }
+    return false;
 }
