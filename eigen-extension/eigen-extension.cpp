@@ -2,6 +2,13 @@
 
 using namespace Eigen;
 
+bool operator< (const VectorXi &obj1, const  VectorXi &obj2){
+    for(int i=0; i<obj1.rows(); i++){
+        if( obj1(i) != obj2(i) ) return (obj1(i) < obj2(i));
+    }
+    return false;
+}
+
 bool operator == (const SMatrixXi &obj1, const SMatrixXi &obj2){
     Eigen::SMatrixXi tmpMatrix = obj1- obj2;
     return tmpMatrix.norm() == 0;

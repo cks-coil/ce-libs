@@ -9,6 +9,8 @@ namespace Eigen{
     typedef SparseVector<int> SVectorXi;
 }
 
+bool operator< (const Eigen::VectorXi &obj1, const  Eigen::VectorXi &obj2);
+
 bool operator== (const Eigen::SMatrixXi &obj1, const Eigen::SMatrixXi &obj2);
 bool operator< (const Eigen::SVectorXi &obj1, const  Eigen::SVectorXi &obj2);
 
