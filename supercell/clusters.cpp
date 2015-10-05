@@ -8,7 +8,7 @@ using namespace Eigen;
 
 Clusters::Clusters(void){
     tgt = nullptr;
-    maxDistance = 0;
+    maxDistance = -1;
     maxNum = 0;
 }
 
@@ -36,7 +36,7 @@ int Clusters::getNumUniqueClusters(void) const{
 }
 
 void Clusters::findUniqueClusters(void){
-    if(tgt == nullptr || maxNum == 0 || maxDistance == 0) return;
+    if(tgt == nullptr || maxNum == 0) return;
     SVectorXi emptyCluster(tgt->getNumPositions());
     SVectorXi singleCluster(tgt->getNumPositions());
     vector<SVectorXi> preClusters;
@@ -58,7 +58,7 @@ bool Clusters::isRange(SVectorXi cluster){
     for(SVectorXi::InnerIterator it1(cluster); it1; ++it1){
         for(SVectorXi::InnerIterator it2=it1; it2; ++it2){
             Vector3d diffVector = tgt->getOrthogonalPos(it1.index()) - tgt->getOrthogonalPos(it2.index());
-            if ( diffVector.norm() > maxDistance ) return false;
+            if ( maxDistance > 0.0 && diffVector.norm() > maxDistance ) return false;
         }
     }
     return true;
