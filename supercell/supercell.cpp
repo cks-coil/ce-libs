@@ -288,3 +288,24 @@ VectorXi getConvertedConfiguration(const VectorXi configuration, const Supercell
     return convertedConfiguration;
 }
 
+
+string getConfCombinedStr(const Eigen::VectorXi configuration){
+    string str = "";
+    for(int i=0; i<configuration.rows(); i++) str+= to_string(configuration(i));
+    return str;
+}
+
+
+string getConfSplitedStr(const Eigen::VectorXi configuration, const Supercell &supercell){
+    string str = "";
+    Vector3i cellSize = supercell.getCellSize();
+    str += to_string(cellSize(0)) + "," + to_string(cellSize(1)) + "," + to_string(cellSize(2));
+    for(int i=0; i<configuration.rows(); i++){
+        if(i%8==0){
+            Vector3i cellPos = supercell.getCellPos(i);
+            str  += " " + to_string(cellPos(0)) + "," + to_string(cellPos(1)) + "," + to_string(cellPos(2)) + "-";
+        }
+        str+= to_string(configuration(i));
+    }
+    return str;
+}

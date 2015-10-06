@@ -54,4 +54,8 @@ protected:
 
 Eigen::VectorXi getConvertedConfiguration(const Eigen::VectorXi configuration, const Supercell &source, const Supercell &dest);
 
+std::string getConfCombinedStr(const Eigen::VectorXi configuration);
+std::string getConfSplitedStr(const Eigen::VectorXi configuration, const Supercell &supercell);
+
+
 #endif
