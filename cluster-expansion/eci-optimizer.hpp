@@ -10,7 +10,7 @@ public:
     ECIOptimizer(void);
     ~ECIOptimizer(void);
     void setTarget(ClusterExpansion *target);
-    void setSample(Eigen::VectorXi configuration, double energy);
+    void addSample(Eigen::VectorXi configuration, double energy);
     void optimizeECI(void);
     double getLOOCVScore(void);
     void output(std::ostream &out) const;
