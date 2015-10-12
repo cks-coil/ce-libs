@@ -32,6 +32,7 @@ public:
     void calcSymOpMatrices(void);
     void checkSymOpMatrices(void);
 protected:
+    int numPositions;
     int numUnitCellPositions;
     void calcFractionalPositions(void);
     void calcOrthogonalPositions(void);

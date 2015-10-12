@@ -122,11 +122,12 @@ void ClusterExpansion::output(ostream &out) const{
 }
 
 VectorXi ClusterExpansion::getClusterCountVectorDifferential(VectorXi configuration){
+    int numPositions = supercell->getNumPositions();
     VectorXi diffConf = configuration - oldConfiguration;
     VectorXi clusterCountVectorDiff = VectorXi::Zero(getNumEffectiveClusters());
-    VectorXi reverseConf = configuration - VectorXi::Ones(supercell->getNumPositions());
+    VectorXi reverseConf = configuration - VectorXi::Ones(numPositions);
 
-    for(int posIndex=0; posIndex<supercell->getNumPositions(); posIndex++){
+    for(int posIndex=0; posIndex<numPositions; posIndex++){
         if( diffConf(posIndex)==0 ) continue;
         for( auto cluster: mappedClusters[posIndex] ){
             if( cluster.second.dot(diffConf)%2==0 ) continue;
