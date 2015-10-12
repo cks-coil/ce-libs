@@ -165,8 +165,11 @@ void GA::selectParents(void){
 }
 
 void GA::evaluateChildren(void){
-    for(auto &child: children){
-        child.second = evalFunc(child.first);
+    #ifdef _OPENMP
+    #pragma omp parallel for
+    #endif
+    for(int i=0;i<children.size();i++){
+        children[i].second = evalFunc(children[i].first);
     }
 }
 
