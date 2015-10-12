@@ -62,9 +62,10 @@ double ECIOptimizer::getLOOCVScore(void){
 
 void ECIOptimizer::output(ostream &out) const{
     for(auto sample:samples){
+        double cellNum = tgt->getSupercell()->getCellSize().prod();
         double energy = tgt->getEffectiveClusterInteractions().transpose() * sample.first.cast<double>();
         double diff = energy - sample.second;
-        out << sample.second << " " << energy << " " << diff << endl;
+        out << sample.second/cellNum << " " << energy/cellNum << " " << diff/cellNum << endl;
     }
 }
 
