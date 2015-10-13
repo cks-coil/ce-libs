@@ -24,7 +24,13 @@ void Parser::parse(void){
     while( getline(ifs,buf) ){
         boost::algorithm::split(v, buf, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
 
-        if( v.size() == 0 ) continue;
+        if( v.size() == 0 || v.front().front() == '#') continue;
+        for( auto it = v.begin(); it != v.end(); ++it){
+            if((*it).front() == '#'){
+                v.erase(it, v.end());
+                break;
+            }
+        }
 
         try{  parseLine(v); } 
         catch(exception& e){
