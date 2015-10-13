@@ -73,3 +73,28 @@ VectorXi Parser::parseUnitCellConf(string str, int numPos){
     }
     return conf;
 }
+
+VectorXi Parser::parseConfiguration(vector<string> strs, Supercell *parseSupercell){
+    Vector3i cellSize = parseCellPos(strs.front());
+    if(strs.size() != (cellSize.prod()+1) ) throw runtime_error("Parser::parseUnitCellConf");
+    parseSupercell->setCellSize( cellSize );
+
+    VectorXi configuration(parseSupercell->getNumPositions());
+
+    for(int i=1; i<(cellSize.prod()+1); i++){
+        VectorXi unitCellConf;
+        Vector3i cellPos;
+        vector<string> v;
+        boost::algorithm::split(v, strs[i], boost::algorithm::is_any_of("-"), boost::algorithm::token_compress_on);
+        if(v.size() != 2) throw runtime_error("Parser::parseUnitCellConf");
+
+        cellPos = parseCellPos(v[0]);
+        unitCellConf = parseUnitCellConf(v[1], parseSupercell->getNumUnitCellPositions());
+        for(int unitCellIndex=0; unitCellIndex<parseSupercell->getNumUnitCellPositions(); unitCellIndex++){
+            int supercellIndex = parseSupercell->getSupercellIndex(unitCellIndex, cellPos);
+            configuration(supercellIndex) = unitCellConf(unitCellIndex);
+        }
+    }
+
+    return configuration;
+}
