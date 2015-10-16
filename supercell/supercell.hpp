@@ -53,10 +53,12 @@ protected:
     std::vector<Eigen::SMatrixXi> spaceGroupSymOpMatrices;
 };
 
-Eigen::VectorXi getConvertedConfiguration(const Eigen::VectorXi configuration, const Supercell &source, const Supercell &dest);
+Eigen::VectorXi getConvertedConfiguration(Eigen::VectorXi configuration, const Supercell &source, const Supercell &dest);
+Eigen::VectorXi getUnitCellConfiguration(Eigen::VectorXi configuration, const Supercell &supercell, Eigen::Vector3i cellPos);
 
-std::string getConfCombinedStr(const Eigen::VectorXi configuration);
-std::string getConfSplitedStr(const Eigen::VectorXi configuration, const Supercell &supercell);
+
+std::string getConfCombinedStr(Eigen::VectorXi configuration);
+std::string getConfSplitedStr(Eigen::VectorXi configuration, const Supercell &supercell);
 
 
 #endif

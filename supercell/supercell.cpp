@@ -268,7 +268,7 @@ vector<SMatrixXi> Supercell::getSlideMatrices(void){
 }
 
 
-VectorXi getConvertedConfiguration(const VectorXi configuration, const Supercell &source, const Supercell &dest){
+VectorXi getConvertedConfiguration(VectorXi configuration, const Supercell &source, const Supercell &dest){
     VectorXi convertedConfiguration(dest.getNumPositions());
     Vector3i scale = (dest.getCellSize().array() / source.getCellSize().array() ).matrix();
     if( (source.getCellSize().array() * scale.array()).matrix() != dest.getCellSize()  ){
@@ -292,15 +292,23 @@ VectorXi getConvertedConfiguration(const VectorXi configuration, const Supercell
     return convertedConfiguration;
 }
 
+VectorXi getUnitCellConfiguration(VectorXi configuration, const Supercell &supercell, Vector3i cellPos){
+    VectorXi unitCellConf(supercell.getNumUnitCellPositions());
+    for(int i=0;i<supercell.getNumUnitCellPositions();i++){
+        int supercellIndex = supercell.getSupercellIndex(i,cellPos);
+        unitCellConf(i) = configuration(supercellIndex);
+    }
+    return unitCellConf;
+}
 
-string getConfCombinedStr(const Eigen::VectorXi configuration){
+string getConfCombinedStr(VectorXi configuration){
     string str = "";
     for(int i=0; i<configuration.rows(); i++) str+= to_string(configuration(i));
     return str;
 }
 
 
-string getConfSplitedStr(const Eigen::VectorXi configuration, const Supercell &supercell){
+string getConfSplitedStr(VectorXi configuration, const Supercell &supercell){
     string str = "";
     Vector3i cellSize = supercell.getCellSize();
     str += to_string(cellSize(0)) + "," + to_string(cellSize(1)) + "," + to_string(cellSize(2));
