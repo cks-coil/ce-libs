@@ -1,6 +1,7 @@
 #include "cluster-expansion.hpp"
 #include <set>
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 using namespace Eigen;
@@ -117,7 +118,7 @@ void ClusterExpansion::output(ostream &out) const{
             Vector3i cellPos = supercell->getCellPos(supercellIndex);
             out << " " << cellPos(0) << "," << cellPos(1) << "," << cellPos(2) << "-" << unitcellIndex;
         }
-        out << " " << eci << " #ECI" << endl;
+        out << " " << scientific << setprecision(15) << eci << " #ECI" << endl;
     }
 }
 
