@@ -117,7 +117,7 @@ void ClusterExpansion::output(ostream &out) const{
             Vector3i cellPos = supercell->getCellPos(supercellIndex);
             out << " " << cellPos(0) << "," << cellPos(1) << "," << cellPos(2) << "-" << unitcellIndex;
         }
-        out << " " << eci << endl;
+        out << " " << eci << " #ECI" << endl;
     }
 }
 
