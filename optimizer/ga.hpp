@@ -8,6 +8,12 @@
 #include <Eigen/Sparse>
 #include "eigen-extension.hpp"
 
+typedef struct{
+    int generation;
+    double eval;
+    Eigen::SVectorXi chromosome;
+}gaResult;
+
 class GA{
 public:
     GA(void);
@@ -22,7 +28,7 @@ public:
     void setMutationP(double mutationP);
     void setEvalFunc(std::function<double(Eigen::SVectorXi)> evalFunc);
     void run(void);
-    void getResults(int *generation, double *eval, Eigen::SVectorXi *chromosome) const;
+    std::vector<gaResult> getResults(void) const;
 private:
     std::mt19937 *engine;
     void initializeParents(void);

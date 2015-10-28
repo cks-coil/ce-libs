@@ -6,6 +6,8 @@
 using namespace std;
 using namespace Eigen;
 
+#define ALLOWABLE_ERROR pow(10.0, -7)
+
 GA::GA(void){
     std::random_device randdev;
     engine = new std::mt19937(randdev());
@@ -46,7 +48,7 @@ void GA::run(void){
     initializeParents();
     sortParents();
     changes.push_back(parents.front());
-    cout << generation << " "<< parents.front().second << endl;
+    cerr << generation << " "<< parents.front().second << endl;
     while(generation < generationLimit && parents.front().second < evalLimit ){
         generation++;
         selectElite();
@@ -57,14 +59,26 @@ void GA::run(void){
         insertElite();
         sortParents();
         changes.push_back(parents.front());
-        cout << generation << " "<< parents.front().second << endl;
+        cerr << generation << " "<< parents.front().second << endl;
     }
 }
 
-void GA::getResults(int *generation, double *eval, SVectorXi *chromosome) const{
-    *generation = this->generation;
-    *eval = parents.front().second;
-    *chromosome = parents.front().first;
+vector<gaResult> GA::getResults(void) const{
+    vector<gaResult> results;
+    double eval = parents.front().second;
+    for(auto parent:parents){
+        if( eval-parent.second > ALLOWABLE_ERROR ) break;
+        gaResult result;
+        result.generation = generation;
+        result.eval = parent.second;
+        result.chromosome = parent.first;
+        results.push_back(result);
+    }
+    auto less = [](const gaResult &obj1, const gaResult &obj2){ return obj1.chromosome < obj2.chromosome; };
+    auto equal = [](const gaResult &obj1, const gaResult &obj2){ return obj1.chromosome == obj2.chromosome; };
+    sort(results.begin(),results.end(),less);
+    results.erase(unique(results.begin(), results.end(),equal), results.end());
+    return results;
 }
 
 
