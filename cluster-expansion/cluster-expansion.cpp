@@ -65,20 +65,16 @@ double ClusterExpansion::getEnergy(VectorXi configuration) const{
     return effectiveClusterInteractions.transpose() * getClusterCountVector(configuration).cast<double>();
 }
 
-double ClusterExpansion::getEnergyInitial(VectorXi configuration){
+pair<double,VectorXi> ClusterExpansion::getEnergyInitial(VectorXi configuration) const{
     VectorXi clusterCountVector = getClusterCountVector(configuration);
     double energy = effectiveClusterInteractions.transpose() * clusterCountVector.cast<double>();
-    oldConfiguration = configuration;
-    oldClusterCountVector = clusterCountVector;
-    return energy;
+    return make_pair(energy, clusterCountVector);
 }
 
-double ClusterExpansion::getEnergyDifferential(VectorXi configuration){
-    VectorXi clusterCountVector = getClusterCountVectorDifferential(configuration);
+pair<double,VectorXi> ClusterExpansion::getEnergyDifferential(VectorXi configuration, VectorXi oldConfiguration, VectorXi oldClusterCountVector, vector<int> changedIndexes) const{
+    VectorXi clusterCountVector = getClusterCountVectorDifferential(configuration, oldConfiguration, oldClusterCountVector, changedIndexes);
     double energy = effectiveClusterInteractions.transpose() * clusterCountVector.cast<double>();
-    oldConfiguration = configuration;
-    oldClusterCountVector = clusterCountVector;
-    return energy;
+    return make_pair(energy, clusterCountVector);
 }
 
 VectorXi ClusterExpansion::getClusterCountVector(VectorXi configuration) const{
@@ -122,14 +118,13 @@ void ClusterExpansion::output(ostream &out) const{
     }
 }
 
-VectorXi ClusterExpansion::getClusterCountVectorDifferential(VectorXi configuration){
+VectorXi ClusterExpansion::getClusterCountVectorDifferential(VectorXi configuration, VectorXi oldConfiguration, VectorXi oldClusterCountVector, vector<int> changedIndexes) const{
     int numPositions = supercell->getNumPositions();
     VectorXi diffConf = configuration - oldConfiguration;
     VectorXi clusterCountVectorDiff = VectorXi::Zero(getNumEffectiveClusters());
     VectorXi reverseConf = configuration - VectorXi::Ones(numPositions);
 
-    for(int posIndex=0; posIndex<numPositions; posIndex++){
-        if( diffConf(posIndex)==0 ) continue;
+    for(auto posIndex: changedIndexes){
         for( auto cluster: mappedClusters[posIndex] ){
             if( cluster.second.dot(diffConf)%2==0 ) continue;
             

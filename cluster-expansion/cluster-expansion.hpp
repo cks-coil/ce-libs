@@ -16,21 +16,19 @@ public:
     void mapClusters(void);
     int getNumEffectiveClusters(void) const;
     double getEnergy(Eigen::VectorXi configuration) const;
-    double getEnergyInitial(Eigen:: VectorXi configuration);
-    double getEnergyDifferential(Eigen::VectorXi configuration);
+    std::pair<double, Eigen::VectorXi> getEnergyInitial(Eigen:: VectorXi configuration) const;
+    std::pair<double, Eigen::VectorXi> getEnergyDifferential(Eigen::VectorXi configuration, Eigen::VectorXi oldConfiguration, Eigen::VectorXi oldClusterCountVector, std::vector<int> changedIndexes) const;
     Eigen::VectorXi getClusterCountVector(Eigen::VectorXi configuration) const;
     const Supercell *getSupercell(void) const;
     Eigen::VectorXd getEffectiveClusterInteractions(void) const;
     void output(std::ostream &out) const;
 private:
-    Eigen::VectorXi getClusterCountVectorDifferential(Eigen::VectorXi configuration);
+    Eigen::VectorXi getClusterCountVectorDifferential(Eigen::VectorXi configuration, Eigen::VectorXi oldConfiguration, Eigen::VectorXi oldClusterCountVector, std::vector<int> changedIndexes) const;
     const Supercell *supercell;
     std::vector<Eigen::SVectorXi> effectiveClusters;
     Eigen::VectorXd effectiveClusterInteractions;
     std::vector<std::vector<Eigen::SVectorXi>>  expandedClusters;
     std::vector<std::vector<std::pair<int,Eigen::SVectorXi>>> mappedClusters;
-    Eigen::VectorXi oldConfiguration;
-    Eigen::VectorXi oldClusterCountVector;
 };
 
 std::ostream &operator<<(std::ostream &out, const ClusterExpansion &tgt);
