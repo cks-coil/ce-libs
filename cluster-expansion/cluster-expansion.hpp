@@ -17,13 +17,13 @@ public:
     int getNumEffectiveClusters(void) const;
     double getEnergy(Eigen::VectorXi configuration) const;
     std::pair<double, Eigen::VectorXi> getEnergyInitial(Eigen:: VectorXi configuration) const;
-    std::pair<double, Eigen::VectorXi> getEnergyDifferential(Eigen::VectorXi configuration, Eigen::VectorXi oldConfiguration, Eigen::VectorXi oldClusterCountVector, std::vector<int> changedIndexes) const;
+    std::pair<double, Eigen::VectorXi> getEnergyDifferential(const Eigen::VectorXi &configuration, const Eigen::VectorXi &oldConfiguration, const Eigen::VectorXi &oldClusterCountVector, const std::vector<std::pair<int,int>> &changes) const;
     Eigen::VectorXi getClusterCountVector(Eigen::VectorXi configuration) const;
     const Supercell *getSupercell(void) const;
     Eigen::VectorXd getEffectiveClusterInteractions(void) const;
     void output(std::ostream &out) const;
 private:
-    Eigen::VectorXi getClusterCountVectorDifferential(Eigen::VectorXi configuration, Eigen::VectorXi oldConfiguration, Eigen::VectorXi oldClusterCountVector, std::vector<int> changedIndexes) const;
+    Eigen::VectorXi getClusterCountVectorDifferential(const Eigen::VectorXi &configuration, const Eigen::VectorXi &oldConfiguration, const Eigen::VectorXi &oldClusterCountVector, const std::vector<std::pair<int,int>> &changes) const;
     const Supercell *supercell;
     std::vector<Eigen::SVectorXi> effectiveClusters;
     Eigen::VectorXd effectiveClusterInteractions;
