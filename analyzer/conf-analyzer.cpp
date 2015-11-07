@@ -43,7 +43,7 @@ VectorXi ConfAnalyzer::getConfCountVector(const VectorXi &configuration) const{
 }
 
 void ConfAnalyzer::getConfCountVectorDifferential(VectorXi *confCountVector, const VectorXi &configuration, const VectorXi &oldConfiguration, const vector<pair<int, int> > &changes) const{
-    for(auto change: changes){
+    for(auto const &change: changes){
         int index1 = getUnitCellConfIndex(getUnitCellConf(configuration, change.first));
         int index2 = getUnitCellConfIndex(getUnitCellConf(oldConfiguration, change.first));
         if(index1 != -1) (*confCountVector)[index1]++;
@@ -64,8 +64,8 @@ void ConfAnalyzer::output(ostream &out) const{
 
 int ConfAnalyzer::getUnitCellConfIndex(const VectorXi &unitCellConf) const{
     int sum = unitCellConf.sum();
-    for(auto expandedConf: expandedUnitCellConfigurations[sum]){
-        for(auto conf:expandedConf.second){
+    for(auto const &expandedConf: expandedUnitCellConfigurations[sum]){
+        for(auto const &conf:expandedConf.second){
             if( conf == unitCellConf ) return expandedConf.first;
         }
     }

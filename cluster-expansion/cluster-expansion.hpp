@@ -29,6 +29,7 @@ private:
     Eigen::VectorXd effectiveClusterInteractions;
     std::vector<std::vector<Eigen::SVectorXi>>  expandedClusters;
     std::vector<std::vector<std::pair<int,Eigen::SVectorXi>>> mappedClusters;
+    int numPositions;
 };
 
 std::ostream &operator<<(std::ostream &out, const ClusterExpansion &tgt);

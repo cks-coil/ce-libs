@@ -8,6 +8,7 @@ using namespace Eigen;
 
 ClusterExpansion::ClusterExpansion(void){
     supercell = nullptr;
+    numPositions = 0;
 }
 
 ClusterExpansion::~ClusterExpansion(void){
@@ -30,6 +31,7 @@ void ClusterExpansion::setEffectiveClusterInteractions(VectorXd effectiveCluster
 
 void ClusterExpansion::expandClusters(void){
     expandedClusters.clear();
+    numPositions = supercell->getNumPositions();
     for(auto effectiveCluster : effectiveClusters){
         auto less = [](const SVectorXi &obj1, const SVectorXi &obj2){return obj1<obj2;};
         auto equal = [](const SVectorXi &obj1, const SVectorXi &obj2){return obj1==obj2;};
@@ -47,7 +49,7 @@ void ClusterExpansion::expandClusters(void){
 
 void ClusterExpansion::mapClusters(void){
     mappedClusters.clear();
-    mappedClusters.resize(supercell->getNumPositions());
+    mappedClusters.resize(numPositions);
     for(int clusterIndex=0; clusterIndex<getNumEffectiveClusters(); clusterIndex++){
         for(auto cluster: expandedClusters[clusterIndex]){
             for(SVectorXi::InnerIterator it(cluster); it; ++it){
@@ -79,12 +81,12 @@ pair<double,VectorXi> ClusterExpansion::getEnergyDifferential(const VectorXi &co
 
 VectorXi ClusterExpansion::getClusterCountVector(VectorXi configuration) const{
     VectorXi clusterCountVector = VectorXi::Zero(getNumEffectiveClusters());
-    configuration -= VectorXi::Ones(supercell->getNumPositions());
+    configuration -= VectorXi::Ones(numPositions);
     for(int i=0; i<getNumEffectiveClusters(); i++){
         for(auto cluster: expandedClusters[i]){
             // for empty cluster
             if(cluster.nonZeros()==0){
-                clusterCountVector(i) = supercell->getNumPositions();
+                clusterCountVector(i) = numPositions;
                 break;
             }
 
@@ -119,16 +121,15 @@ void ClusterExpansion::output(ostream &out) const{
 }
 
 VectorXi ClusterExpansion::getClusterCountVectorDifferential(const VectorXi &configuration, const VectorXi &oldConfiguration, const VectorXi &oldClusterCountVector, const vector<pair<int,int>> &changes) const{
-    int numPositions = supercell->getNumPositions();
     VectorXi clusterCountVectorDiff = VectorXi::Zero(getNumEffectiveClusters());
     SVectorXi diffConf(numPositions);
-    for(auto change: changes) diffConf.coeffRef(change.first)=change.second;
+    for(auto const &change: changes) diffConf.coeffRef(change.first)=change.second;
 
-    for(auto change: changes){
+    for(auto const &change: changes){
         int posIndex = change.first;
-        for( auto cluster: mappedClusters[posIndex] ){
+        for(auto const &cluster: mappedClusters[posIndex] ){
             if( cluster.second.dot(diffConf)%2==0 ) continue;
-            
+
             int firstIndex;
             SVectorXi::InnerIterator it1(cluster.second);
             while( diffConf.coeff(firstIndex=it1.index()) == 0 ) ++it1;
