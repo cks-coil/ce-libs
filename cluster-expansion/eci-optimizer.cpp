@@ -1,6 +1,7 @@
 #include "eci-optimizer.hpp"
 #include <Eigen/Dense>
 #include <Eigen/SVD>
+#include <Eigen/LU>
 #include <iostream>
 #include <limits>
 
@@ -38,24 +39,27 @@ void ECIOptimizer::optimizeECI(void){
 }
 
 double ECIOptimizer::getLOOCVScore(void){
+    MatrixXd allX(samples.size(), tgt->getNumEffectiveClusters());
+    VectorXd allY(samples.size());
+    for(int i=0; i<samples.size(); i++){
+        allX.row(i) = samples[i].first.cast<double>();
+        allY(i) = samples[i].second;
+    }
+
+    JacobiSVD<MatrixXd> svd(allX, ComputeThinU | ComputeThinV);
+    int rankDiff = svd.rank() - tgt->getNumEffectiveClusters();
+    if( rankDiff != 0 ) return 1.0/(double)rankDiff;
+
+    MatrixXd hat = allX * (allX.transpose()*allX).inverse() * allX.transpose();
+    VectorXd eci = svd.solve(allY);
+
     double score=0;
 
-    for(auto testSample: samples){
-        VectorXd testX = testSample.first.cast<double>();
-        double testY = testSample.second;
-        MatrixXd trainingX(samples.size()-1, tgt->getNumEffectiveClusters());
-        VectorXd trainingY(samples.size()-1);
-        VectorXd ECI;
-        int i=0;
-        for(auto trainingSample: samples){
-            if( testSample == trainingSample ) continue;
-            trainingX.row(i) = trainingSample.first.cast<double>();
-            trainingY(i) = trainingSample.second;
-            i++;
-        }
-        ECI = trainingX.jacobiSvd(ComputeThinU | ComputeThinV).solve(trainingY);
-        score += pow( (ECI.transpose() * testX - testY), 2);
-        if( std::isnan(score) ){ return -1.0;}
+    for(int i=0; i<samples.size(); i++){
+        VectorXd testX = samples[i].first.cast<double>();
+        double testY = samples[i].second;
+        double predictY = eci.dot(testX);
+        score += pow( (testY - predictY) / (1-hat(i,i)), 2);
     }
     return score / (double)samples.size();
 }
