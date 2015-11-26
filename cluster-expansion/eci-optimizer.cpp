@@ -59,7 +59,7 @@ double ECIOptimizer::getLOOCVScore(SVectorXi flag) const{
 
     JacobiSVD<MatrixXd> svd(allX, ComputeThinU | ComputeThinV);
     int rankDiff = svd.rank() - num;
-    if( rankDiff != 0 ) return 1.0/(double)rankDiff;
+    if( rankDiff != 0 ) return rankDiff;
 
     MatrixXd hat = allX * (allX.transpose()*allX).inverse() * allX.transpose();
     VectorXd eci = svd.solve(allY);
@@ -72,6 +72,7 @@ double ECIOptimizer::getLOOCVScore(SVectorXi flag) const{
         double predictY = eci.dot(testX);
         score += pow( (testY - predictY) / (1-hat(i,i)), 2);
     }
+    if( std::isnan(score) || std::isinf(score) ) return -1;
     return score / (double)currentSamples.size();
 }
 
