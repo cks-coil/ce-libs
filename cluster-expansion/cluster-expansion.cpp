@@ -109,6 +109,7 @@ void ClusterExpansion::output(ostream &out) const{
     for(int i=0; i<getNumEffectiveClusters(); i++){
         SVectorXi cluster = effectiveClusters[i];
         double eci = effectiveClusterInteractions.coeff(i);
+        if(eci == 0) continue;
         out << cluster.nonZeros();
         for(SVectorXi::InnerIterator it(cluster); it; ++it){
             int supercellIndex = it.index();

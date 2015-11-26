@@ -4,6 +4,7 @@
 #include <vector>
 #include <ostream>
 #include "cluster-expansion.hpp"
+#include "eigen-extension.hpp"
 
 class ECIOptimizer{
 public:
@@ -11,12 +12,13 @@ public:
     ~ECIOptimizer(void);
     void setTarget(ClusterExpansion *target);
     void addSample(Eigen::VectorXi configuration, double energy);
-    void optimizeECI(void);
-    double getLOOCVScore(void);
+    void optimizeECI(Eigen::SVectorXi flag);
+    double getLOOCVScore(Eigen::SVectorXi flag) const;
     void output(std::ostream &out) const;
 private:
     ClusterExpansion *tgt;
-    std::vector<std::pair<Eigen::VectorXi, double>> samples;
+    std::vector< std::pair<Eigen::VectorXi, double> > samples;
+    std::vector< std::pair<Eigen::VectorXi, double> > getCurrentSamples(const Eigen::SVectorXi &flag) const;
 };
 
 std::ostream &operator<<(std::ostream &out, const ECIOptimizer &tgt);

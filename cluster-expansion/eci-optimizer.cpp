@@ -1,7 +1,6 @@
 #include "eci-optimizer.hpp"
 #include <Eigen/Dense>
 #include <Eigen/SVD>
-#include <Eigen/LU>
 #include <iostream>
 #include <limits>
 
@@ -26,28 +25,40 @@ void ECIOptimizer::addSample(VectorXi configuration, double energy){
     samples.push_back(sample);
 }
 
-void ECIOptimizer::optimizeECI(void){
-    MatrixXd X(samples.size(), tgt->getNumEffectiveClusters());
-    VectorXd Y(samples.size());
-    VectorXd ECI;
-    for(int i=0; i<samples.size(); i++){
-        X.row(i) = samples[i].first.cast<double>();
-        Y(i) = samples[i].second;
+void ECIOptimizer::optimizeECI(SVectorXi flag){
+    flag.prune(0);
+    vector< pair<VectorXi, double> > currentSamples = getCurrentSamples(flag);
+
+    MatrixXd X(currentSamples.size(), flag.nonZeros());
+    VectorXd Y(currentSamples.size());
+    for(int i=0; i<currentSamples.size(); i++){
+        X.row(i) = currentSamples[i].first.cast<double>();
+        Y(i) = currentSamples[i].second;
     }
-    ECI = X.jacobiSvd(ComputeThinU | ComputeThinV).solve(Y);
-    tgt->setEffectiveClusterInteractions(ECI);
+    VectorXd eci = X.jacobiSvd(ComputeThinU | ComputeThinV).solve(Y);
+    VectorXd allECI = VectorXd::Zero(tgt->getNumEffectiveClusters());
+    int j=0;
+    for(SVectorXi::InnerIterator it(flag); it; ++it){
+        allECI(it.index()) = eci(j);
+        j++;
+    }
+    tgt->setEffectiveClusterInteractions(allECI);
 }
 
-double ECIOptimizer::getLOOCVScore(void){
-    MatrixXd allX(samples.size(), tgt->getNumEffectiveClusters());
-    VectorXd allY(samples.size());
-    for(int i=0; i<samples.size(); i++){
-        allX.row(i) = samples[i].first.cast<double>();
-        allY(i) = samples[i].second;
+double ECIOptimizer::getLOOCVScore(SVectorXi flag) const{
+    flag.prune(0);
+    vector< pair<VectorXi, double> > currentSamples = getCurrentSamples(flag);
+    int num = flag.nonZeros();
+
+    MatrixXd allX(currentSamples.size(), num);
+    VectorXd allY(currentSamples.size());
+    for(int i=0; i<currentSamples.size(); i++){
+        allX.row(i) = currentSamples[i].first.cast<double>();
+        allY(i) = currentSamples[i].second;
     }
 
     JacobiSVD<MatrixXd> svd(allX, ComputeThinU | ComputeThinV);
-    int rankDiff = svd.rank() - tgt->getNumEffectiveClusters();
+    int rankDiff = svd.rank() - num;
     if( rankDiff != 0 ) return 1.0/(double)rankDiff;
 
     MatrixXd hat = allX * (allX.transpose()*allX).inverse() * allX.transpose();
@@ -55,15 +66,29 @@ double ECIOptimizer::getLOOCVScore(void){
 
     double score=0;
 
-    for(int i=0; i<samples.size(); i++){
-        VectorXd testX = samples[i].first.cast<double>();
-        double testY = samples[i].second;
+    for(int i=0; i<currentSamples.size(); i++){
+        VectorXd testX = currentSamples[i].first.cast<double>();
+        double testY = currentSamples[i].second;
         double predictY = eci.dot(testX);
         score += pow( (testY - predictY) / (1-hat(i,i)), 2);
     }
-    return score / (double)samples.size();
+    return score / (double)currentSamples.size();
 }
 
+vector< pair<VectorXi, double> > ECIOptimizer::getCurrentSamples(const SVectorXi &flag) const{
+    vector< pair<VectorXi, double> > currentSamples;
+    for(auto sample: samples){
+        VectorXi tmp(flag.nonZeros());
+        int j=0;
+        for(SVectorXi::InnerIterator it(flag); it; ++it){
+            tmp(j)= sample.first(it.index());
+            j++;
+        }
+        currentSamples.push_back( make_pair(tmp, sample.second));
+    }
+    return currentSamples;
+}
+    
 void ECIOptimizer::output(ostream &out) const{
     for(auto sample:samples){
         double cellNum = tgt->getSupercell()->getCellSize().prod();
