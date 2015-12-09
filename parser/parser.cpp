@@ -90,6 +90,8 @@ VectorXi Parser::parseConfiguration(vector<string> strs, Supercell *parseSuperce
 
         cellPos = parseCellPos(v[0]);
         unitCellConf = parseUnitCellConf(v[1], parseSupercell->getNumUnitCellPositions());
+        if( ((cellPos-cellSize).array()>=0).any() ) throw runtime_error("Parser::parseUnitCellConf");
+
         for(int unitCellIndex=0; unitCellIndex<parseSupercell->getNumUnitCellPositions(); unitCellIndex++){
             int supercellIndex = parseSupercell->getSupercellIndex(unitCellIndex, cellPos);
             configuration(supercellIndex) = unitCellConf(unitCellIndex);
