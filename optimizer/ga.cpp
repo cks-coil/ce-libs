@@ -112,9 +112,14 @@ void GA::selectElite(void){
 // (modified) uniform crossover
 void GA::generateChildren(void){
     children.clear();
+    children.reserve(numParents);
+    children.resize(numParents-numElites);
     uniform_int_distribution<int> parentRnd(0,numParents-1);
 
-    while(children.size() < numChildren - numElites){
+    #ifdef _OPENMP
+    #pragma omp parallel for
+    #endif
+    for(int i=0; i<(numChildren-numElites+1)/2; i++){
         SVectorXi parent1, parent2;
         parent1 = parents[parentRnd(*engine)].first;
         while( (parent2=parents[parentRnd(*engine)].first) == parent1 );
@@ -138,8 +143,8 @@ void GA::generateChildren(void){
         child2 = sum - child1;
         child2.prune(0);
         
-        children.push_back( make_pair(child1, 0) );
-        children.push_back( make_pair(child2, 0) );
+        children[i*2] = make_pair(child1, 0);
+        if( i*2+1 < numChildren-numElites ) children[i*2+1] = make_pair(child2, 0);
     }
 }
 
@@ -148,7 +153,11 @@ void GA::mutateChildren(void){
     uniform_real_distribution<double> judgeRnd(0,1);
     uniform_int_distribution<int> selectRnd(0,numTotalGene-1);
 
-    for(auto &child: children){
+    #ifdef _OPENMP
+    #pragma omp parallel for
+    #endif
+    for(int i=0; i<children.size();i++){
+        auto &child = children[i];
         if(judgeRnd(*engine) < mutationP ) continue;
         int disableGene, enableGene;
         while( child.first.coeff( disableGene=selectRnd(*engine) ) != 1 );
@@ -161,20 +170,26 @@ void GA::mutateChildren(void){
 
 void GA::selectParents(void){
     vector<double> ruletteTable;
-    double sum = 0;
     parents.clear();
+    parents.reserve(numParents);
+    parents.resize(numParents-numElites);
 
+    double sum = 0;
     for(auto child: children){
         sum += child.second;
         ruletteTable.push_back(sum);
     }
     
     uniform_real_distribution<double> rnd(0,sum);
-    while(parents.size() < numParents-numElites ){
+    #ifdef _OPENMP
+    #pragma omp parallel for
+    #endif
+    for(int i=0; i<numParents-numElites; i++){
         double selector = rnd(*engine);
-        for(int i=0; i<ruletteTable.size(); i++){
-            if( ruletteTable[i] >= selector ) parents.push_back(children[i]);
-        }
+        vector<double>::iterator it;
+        while( (  it = lower_bound(ruletteTable.begin(), ruletteTable.end(), selector ) ) == ruletteTable.end() );
+        int index = it-ruletteTable.begin();
+        parents[i] = children[index];
     }
 }
 
