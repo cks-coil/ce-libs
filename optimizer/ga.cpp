@@ -112,8 +112,8 @@ void GA::selectElite(void){
 // (modified) uniform crossover
 void GA::generateChildren(void){
     children.clear();
-    children.reserve(numParents);
-    children.resize(numParents-numElites);
+    children.reserve(numChildren);
+    children.resize(numChildren-numElites);
     uniform_int_distribution<int> parentRnd(0,numParents-1);
 
     #ifdef _OPENMP
