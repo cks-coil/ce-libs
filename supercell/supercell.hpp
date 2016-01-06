@@ -21,10 +21,10 @@ public:
     Eigen::Vector3d getFractionalPos(int unitCellIndex, Eigen::Vector3i cellPos) const;
     Eigen::Vector3d getOrthogonalPos(int supercellIndex) const;
     Eigen::Vector3d getOrthogonalPos(int unitCellIndex, Eigen::Vector3i cellPos) const;
-    std::vector<Eigen::Vector3d> getFractionalPositions(void) const;
-    std::vector<Eigen::Vector3d> getOrthogonalPositions(void) const;
-    std::vector<Eigen::SMatrixXi> getSymOpMatrices(void) const;
-    std::vector<Eigen::SMatrixXi> getSpaceGroupSymOpMatrices(void) const;
+    const std::vector<Eigen::Vector3d>& getFractionalPositions(void) const;
+    const std::vector<Eigen::Vector3d>& getOrthogonalPositions(void) const;
+    const std::vector<Eigen::SMatrixXi>& getSymOpMatrices(void) const;
+    const std::vector<Eigen::SMatrixXi>& getSpaceGroupSymOpMatrices(void) const;
     int getSupercellIndex(int unitCellIndex, Eigen::Vector3i cellPos) const;
     int getUnitCellIndex(int supercellIndex) const;
     Eigen::Vector3i getCellPos(int supercellIndex) const;

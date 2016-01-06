@@ -70,16 +70,16 @@ Vector3d Supercell::getOrthogonalPos(int unitCellIndex, Vector3i cellPos) const{
     return getOrthogonalPos( getSupercellIndex(unitCellIndex, cellPos) );
 }
 
-vector<Vector3d> Supercell::getFractionalPositions(void) const{
+const vector<Vector3d>& Supercell::getFractionalPositions(void) const{
     return fractionalPositions;
 }
-vector<Vector3d> Supercell::getOrthogonalPositions(void) const{
+const vector<Vector3d>& Supercell::getOrthogonalPositions(void) const{
     return orthogonalPositions;
 }
-vector<SMatrixXi> Supercell::getSymOpMatrices(void) const{
+const vector<SMatrixXi>& Supercell::getSymOpMatrices(void) const{
     return symOpMatrices;
 }
-vector<SMatrixXi> Supercell::getSpaceGroupSymOpMatrices(void) const{
+const vector<SMatrixXi>& Supercell::getSpaceGroupSymOpMatrices(void) const{
     return spaceGroupSymOpMatrices;
 }
 
@@ -126,12 +126,13 @@ void Supercell::calcSymOpMatrices(void){
     if( fractionalPositions.empty() ) return;
 
     spaceGroupSymOpMatrices.clear();
+    spaceGroupSymOpMatrices.reserve(numPositions);
     calcSpaceGroupSymOpMatrices();
 
     symOpMatrices.clear();
     for(auto slide : getSlideMatrices() ){
         for(auto spaceGroup: spaceGroupSymOpMatrices ){
-            symOpMatrices.push_back(slide * spaceGroup);
+            symOpMatrices.push_back( (slide * spaceGroup).pruned() );
         }
     }
 }
