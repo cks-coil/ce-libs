@@ -32,12 +32,14 @@ void ClusterExpansion::setEffectiveClusterInteractions(VectorXd effectiveCluster
 void ClusterExpansion::expandClusters(void){
     expandedClusters.clear();
     numPositions = supercell->getNumPositions();
+    expandedClusters.reserve(effectiveClusters.size());
     for(auto effectiveCluster : effectiveClusters){
         auto less = [](const SVectorXi &obj1, const SVectorXi &obj2){return obj1<obj2;};
         auto equal = [](const SVectorXi &obj1, const SVectorXi &obj2){return obj1==obj2;};
         vector<SVectorXi> clusters;
-        for(auto symOpMatrix : supercell->getSymOpMatrices()){
-            SVectorXi configuration = symOpMatrix * effectiveCluster;
+        if( effectiveCluster.nonZeros() ) clusters.reserve(numPositions);
+        for(auto const &symOpMatrix : supercell->getSymOpMatrices()){
+            SVectorXi configuration = (symOpMatrix * effectiveCluster).pruned();
             configuration.prune(0);
             clusters.push_back( configuration );
         }
