@@ -79,6 +79,9 @@ vector<Vector3d> Supercell::getOrthogonalPositions(void) const{
 vector<SMatrixXi> Supercell::getSymOpMatrices(void) const{
     return symOpMatrices;
 }
+vector<SMatrixXi> Supercell::getSpaceGroupSymOpMatrices(void) const{
+    return spaceGroupSymOpMatrices;
+}
 
 int Supercell::getSupercellIndex(int unitCellIndex, Vector3i cellPos) const{
     int supercellIndex=0;

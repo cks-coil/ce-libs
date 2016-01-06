@@ -24,6 +24,7 @@ public:
     std::vector<Eigen::Vector3d> getFractionalPositions(void) const;
     std::vector<Eigen::Vector3d> getOrthogonalPositions(void) const;
     std::vector<Eigen::SMatrixXi> getSymOpMatrices(void) const;
+    std::vector<Eigen::SMatrixXi> getSpaceGroupSymOpMatrices(void) const;
     int getSupercellIndex(int unitCellIndex, Eigen::Vector3i cellPos) const;
     int getUnitCellIndex(int supercellIndex) const;
     Eigen::Vector3i getCellPos(int supercellIndex) const;
