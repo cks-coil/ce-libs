@@ -17,6 +17,7 @@ public:
     void expandUnitCellConfigurations(void);
     Eigen::VectorXi getConfCountVector(const Eigen::VectorXi &configuration) const;
     void getConfCountVectorDifferential(Eigen::VectorXi *confCountVector, const Eigen::VectorXi &configuration, const Eigen::VectorXi &oldConfiguration, const std::vector<std::pair<int,int>> &changes) const;
+    Eigen::VectorXi getMaxParcentageConfCountVector(const Eigen::VectorXi &configuration, const std::vector<Eigen::VectorXi> &unitCellConfs) const;
     void output(std::ostream &out) const;
 private:
     int getUnitCellConfIndex(const Eigen::VectorXi &unitCellConf) const;

@@ -51,6 +51,25 @@ void ConfAnalyzer::getConfCountVectorDifferential(VectorXi *confCountVector, con
     }
 }
 
+VectorXi ConfAnalyzer::getMaxParcentageConfCountVector(const VectorXi &configuration, const vector<VectorXi> &unitCellConfs) const{
+    vector<int> unitCellConfIndexes;
+    for(auto conf:unitCellConfs){ unitCellConfIndexes.push_back(getUnitCellConfIndex(conf)); }
+
+    int bestSum = -1;
+    VectorXi maxParcentageConfCountVector;
+    for(auto const &m: supercell->getSpaceGroupSymOpMatrices()){
+        VectorXi converted = m*configuration;
+        VectorXi confCountVector = getConfCountVector(converted);
+        int sum=0;
+        for(auto index: unitCellConfIndexes) sum += confCountVector[index];
+        if(sum > bestSum){
+            bestSum = sum;
+            maxParcentageConfCountVector = confCountVector;
+        }
+    }
+    return maxParcentageConfCountVector;
+}
+
 void ConfAnalyzer::output(ostream &out) const{
     string str;
     int index=0;
