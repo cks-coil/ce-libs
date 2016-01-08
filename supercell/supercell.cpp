@@ -126,10 +126,10 @@ void Supercell::calcSymOpMatrices(void){
     if( fractionalPositions.empty() ) return;
 
     spaceGroupSymOpMatrices.clear();
-    spaceGroupSymOpMatrices.reserve(numPositions);
     calcSpaceGroupSymOpMatrices();
 
     symOpMatrices.clear();
+    symOpMatrices.reserve(numPositions);
     for(auto slide : getSlideMatrices() ){
         for(auto spaceGroup: spaceGroupSymOpMatrices ){
             symOpMatrices.push_back( (slide * spaceGroup).pruned() );
