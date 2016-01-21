@@ -21,6 +21,10 @@ void ClusterExpansion::setSupercell(const Supercell *supercell){
     this->supercell=supercell;
 }
 
+void ClusterExpansion::addEffectiveCluster(SVectorXi effectiveCluster){
+    this->effectiveClusters.push_back(effectiveCluster);
+}
+
 void ClusterExpansion::setEffectiveClusters(vector<Eigen::SVectorXi> effectiveClusters){
     this->effectiveClusters = effectiveClusters;
 }

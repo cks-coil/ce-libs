@@ -10,6 +10,7 @@ public:
     ClusterExpansion(void);
     ~ClusterExpansion(void);
     void setSupercell(const Supercell *supercell);
+    void addEffectiveCluster(Eigen::SVectorXi effectiveCluster);
     void setEffectiveClusters(std::vector<Eigen::SVectorXi> effectiveClusters);
     void setEffectiveClusterInteractions(Eigen::VectorXd effectiveClusterInteractions);
     void expandClusters(void);
